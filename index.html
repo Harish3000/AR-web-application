@@ -4,19 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Animal AR</title>
-    <!-- 1. A-Frame Core FIRST -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- 2. AR.js for A-Frame IMMEDIATELY AFTER -->
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <!-- 3. Your main CSS -->
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body style="margin: 0px; overflow: hidden">
+  <body>
     <div id="landing-page">
       <div class="popup">
-        <h1>AR Experience</h1>
+        <h1>Animal AR Experience</h1>
         <p>Enter the password to unlock:</p>
-        <input type="text" id="passcode-input" placeholder="Password" />
+        <input
+          type="password"
+          id="passcode-input"
+          placeholder="Enter password"
+        />
         <button id="enter-button">Enter AR</button>
         <p id="error-message" class="error"></p>
       </div>
@@ -27,50 +28,32 @@
       <p>Loading AR...</p>
     </div>
 
-    <div
-      id="ar-container"
-      style="
-        display: none; /* Initially hidden, shown by JS */
-        /* Styles moved to style.css for clarity */
-      "
-    >
-      <div id="ar-feedback-overlay">Point your camera at a marker.</div>
-
+    <div id="ar-container" style="display: none">
       <a-scene
         id="ar-scene"
         embedded
-        renderer="logarithmicDepthBuffer: true"
-        vr-mode-ui="enabled: false"
-        loading-screen="dotsColor: white; backgroundColor: black"
-        device-orientation-permission-ui="enabled: false"
-        gesture-detector
-        ><!-- ARJS ATTRIBUTE WILL BE ADDED BY SCRIPT.JS -->
-
-        <!-- Bird Marker -->
+        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+      >
         <a-marker
           id="marker-bird"
           type="pattern"
           url="markers/marker_bird.patt"
-          emitevents="true"
         >
           <a-entity
             id="model-bird"
             gltf-model="url(assets/bird.glb)"
-            scale="0.25 0.25 0.25"
+            scale="0.1 0.1 0.1"
             position="0 0.5 0"
             rotation="-90 0 0"
             animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"
-            visible="false"
           >
           </a-entity>
         </a-marker>
 
-        <!-- Dino Marker -->
         <a-marker
           id="marker-dino"
           type="pattern"
           url="markers/marker_dino.patt"
-          emitevents="true"
         >
           <a-entity
             id="model-dino"
@@ -78,7 +61,7 @@
             scale="1 1 1"
             position="0 0.2 0"
             rotation="0 0 0"
-            visible="false"
+            visible="true"
             animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
             animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
           >
@@ -88,6 +71,9 @@
         <a-entity camera></a-entity>
       </a-scene>
     </div>
+
+    <div id="scan-feedback">QR Detected - Scanning...</div>
+    <div id="success-feedback"></div>
 
     <script src="script.js"></script>
   </body>

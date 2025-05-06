@@ -1,26 +1,27 @@
+html,
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
-  overflow: hidden; /* Prevents scrollbars on the body */
-  background-color: #333; /* Fallback background */
-  width: 100%;
-  height: 100%;
-  position: fixed; /* Ensure body itself doesn't scroll */
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 #landing-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6);
   position: fixed;
   top: 0;
   left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #4a90e2, #9013fe);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
-  opacity: 1;
-  transition: opacity 0.5s ease-out;
+  transition: opacity 0.5s ease;
 }
 
 #landing-page.hidden {
@@ -29,94 +30,156 @@ body {
 }
 
 .popup {
-  background-color: white;
-  padding: 30px 40px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   text-align: center;
-  max-width: 90%;
-  width: 350px;
-}
-
-.popup h1 {
-  margin-top: 0;
-  color: #333;
-  font-size: 1.8em;
-}
-
-.popup p {
-  color: #555;
-  margin-bottom: 15px;
-  font-size: 1em;
-}
-
-#passcode-input {
-  width: calc(100% - 22px); /* Full width minus padding */
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 1em;
+  width: 90%;
+  max-width: 320px;
   box-sizing: border-box;
 }
 
-#enter-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.3s ease;
+.popup h1 {
+  margin: 0 0 1rem;
+  color: #333;
+  font-size: 1.5rem;
+  line-height: 1.2;
 }
 
-#enter-button:hover {
-  background-color: #0056b3;
+.popup p {
+  margin: 0 0 1rem;
+  color: #666;
+  font-size: 1rem;
+}
+
+.popup input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.popup button {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.popup button:hover {
+  background: #357abd;
 }
 
 .error {
-  color: red;
-  font-size: 0.9em;
-  margin-top: 10px;
-  min-height: 1.2em; /* Reserve space to prevent layout shift */
+  color: #e74c3c;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  min-height: 1.2rem;
 }
 
-/* Loader styles */
 .loader-wrapper {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 999;
-  opacity: 1;
-  transition: opacity 0.5s ease-out;
+  z-index: 2000;
+  transition: opacity 0.5s ease;
 }
 
 .loader-wrapper.hidden {
   opacity: 0;
-  pointer-events: none; /* Allow clicks through when hidden */
+  pointer-events: none;
+}
+
+.loader {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #4a90e2;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
 }
 
 .loader-wrapper p {
   color: white;
-  margin-top: 15px;
-  font-size: 1.2em;
+  margin-top: 1rem;
+  font-size: 1rem;
 }
 
-.loader {
-  border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #3498db; /* Blue */
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
+#ar-container {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+}
+
+a-scene {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+a-scene video {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover; /* Changed to cover to fill screen without distortion */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+#scan-feedback {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  z-index: 3000;
+  display: none;
+  text-align: center;
+  max-width: 90%;
+  box-sizing: border-box;
+}
+
+#success-feedback {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(46, 204, 113, 0.9);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  z-index: 3000;
+  display: none;
+  text-align: center;
+  max-width: 90%;
+  box-sizing: border-box;
+  animation: fadeInOut 3s ease-in-out;
 }
 
 @keyframes spin {
@@ -128,52 +191,67 @@ body {
   }
 }
 
-/* Shake animation for input */
 @keyframes shake {
   0%,
   100% {
     transform: translateX(0);
   }
   25% {
-    transform: translateX(-6px);
+    transform: translateX(-4px);
   }
   75% {
-    transform: translateX(6px);
+    transform: translateX(4px);
   }
 }
 
-/* AR Container and Scene */
-#ar-container {
-  /* display: none; is set inline initially, JS toggles to block */
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  overflow: hidden; /* Important: Prevents children from causing scrollbars */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
-#ar-container > a-scene {
-  width: 100%;
-  height: 100%;
-  display: block; /* Ensure a-scene takes up space correctly */
-}
+@media (max-width: 480px) {
+  .popup {
+    padding: 1rem;
+    max-width: 280px;
+  }
 
-/* AR Feedback Overlay */
-#ar-feedback-overlay {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgba(0, 0, 0, 0.75);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 1em;
-  z-index: 10;
-  text-align: center;
-  display: none;
-  max-width: 90%;
-  box-sizing: border-box;
-  pointer-events: none;
+  .popup h1 {
+    font-size: 1.25rem;
+  }
+
+  .popup p {
+    font-size: 0.9rem;
+  }
+
+  .popup input,
+  .popup button {
+    font-size: 0.9rem;
+    padding: 0.6rem;
+  }
+
+  .loader-wrapper p {
+    font-size: 0.9rem;
+  }
+
+  .loader {
+    width: 32px;
+    height: 32px;
+    border-width: 4px;
+  }
+
+  #scan-feedback,
+  #success-feedback {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
 }
