@@ -2,11 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Secret AR Experience</title>
+    <!-- UPDATED Viewport Meta -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Animal AR</title>
     <!-- 1. A-Frame Core FIRST -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <!-- 2. AR.js for A-Frame IMMEDIATELY AFTER -->
@@ -18,10 +16,19 @@
     <!-- Landing Page / Passcode Popup -->
     <div id="landing-page">
       <div class="popup">
-        <h1>Secret AR Portal</h1>
+        <h1>AR Experience</h1>
         <p>Enter the secret password to unlock:</p>
-        <input type="password" <!-- Changed to password type -- />
-        id="passcode-input" placeholder="Password" />
+        <!-- UPDATED Text -->
+        <input
+          type="text"
+          id="passcode-input"
+          placeholder="Enter Password"
+          <!--
+          UPDATED
+          placeholder
+          --
+        />
+        />
         <button id="enter-button">Enter AR</button>
         <p id="error-message" class="error"></p>
       </div>
@@ -31,6 +38,11 @@
     <div id="loader" class="loader-wrapper" style="display: none">
       <div class="loader"></div>
       <p>Loading AR...</p>
+    </div>
+
+    <!-- Visual Feedback Overlay -->
+    <div id="feedback-overlay" style="display: none">
+      <p id="feedback-text">Scanning for QR...</p>
     </div>
 
     <!-- AR Scene Container -->
@@ -45,27 +57,20 @@
         left: 0;
       "
     >
-      <!-- Visual Feedback UI -->
-      <div id="ar-feedback" class="ar-feedback-ui" style="display: none">
-        <div class="feedback-content">
-          <div class="scan-animation">
-            <div class="scan-line"></div>
-          </div>
-          <p id="feedback-text">Scanning for markers...</p>
-        </div>
-      </div>
-
       <a-scene
         id="ar-scene"
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: false;"
+        arjs="sourceType: webcam; debugUIEnabled: true;"
         <!--
-        Debug
-        UI
-        disabled
+        Keep
+        debugUI
         for
-        cleaner
-        look
+        testing,
+        set
+        to
+        false
+        for
+        final
         --
       >
         >
@@ -74,12 +79,13 @@
           id="marker-bird"
           type="pattern"
           url="markers/marker_bird.patt"
-          data-animal-name="Beautiful Bird"
+          data-animal-name="Bird"
           <!--
           Custom
           attribute
-          for
-          display
+          to
+          store
+          animal
           name
           --
         >
@@ -87,11 +93,12 @@
           <a-entity
             id="model-bird"
             gltf-model="url(assets/bird.glb)"
-            scale="0.1 0.1 0.1"
+            scale="0.3 0.3 0.3"
             <!--
-            INCREASED
-            BIRD
-            SCALE
+            UPDATED
+            Scale
+            for
+            Bird
             --
           >
             position="0 0.5 0" rotation="-90 0 0" animation="property: rotation;
@@ -104,12 +111,13 @@
           id="marker-dino"
           type="pattern"
           url="markers/marker_dino.patt"
-          data-animal-name="Mighty Dinosaur"
+          data-animal-name="Dinosaur"
           <!--
           Custom
           attribute
-          for
-          display
+          to
+          store
+          animal
           name
           --
         >
@@ -117,21 +125,13 @@
           <a-entity
             id="model-dino"
             gltf-model="url(assets/dino.glb)"
-            scale="0.5 0.5 0.5"
-            <!--
-            Adjusted
-            dino
-            scale
-            slightly
-            for
-            consistency
-            --
+            scale="1 1 1"
+            position="0 0.2 0"
+            rotation="0 0 0"
+            visible="true"
+            animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
+            animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
           >
-            position="0 0.2 0" rotation="0 0 0" visible="true"
-            animation__pos="property: position; to: 0 0.3 0; dir: alternate;
-            loop: true; dur: 2000; easing: easeInOutSine"
-            animation__rot="property: rotation; to: 0 360 0; loop: true; dur:
-            15000; easing: linear" >
           </a-entity>
         </a-marker>
 

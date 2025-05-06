@@ -1,9 +1,9 @@
 /* Basic Reset & Body */
 body {
   margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Nicer font */
+  font-family: sans-serif;
   overflow: hidden; /* Prevent scrolling */
-  background-color: #2c3e50; /* Darker background for AR view */
+  background-color: #f0f0f0; /* Fallback background */
 }
 
 /* Landing Page Styles */
@@ -13,123 +13,93 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8); /* Darker overlay */
+  background-color: rgba(0, 0, 0, 0.7); /* Dark overlay */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; /* Highest z-index */
+  z-index: 100;
   opacity: 1;
   transition: opacity 0.5s ease-out;
 }
 
 #landing-page.hidden {
   opacity: 0;
-  pointer-events: none;
+  pointer-events: none; /* Prevent interaction when hidden */
 }
 
 .popup {
-  background: linear-gradient(145deg, #5c6bc0, #3f51b5); /* Indigo gradient */
-  padding: 35px 45px;
-  border-radius: 20px;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #6e8efb, #a777e3); /* Nice gradient */
+  padding: 30px 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   text-align: center;
   color: white;
   max-width: 90%;
-  width: 420px;
+  width: 400px; /* Max width for the popup */
   transform: scale(0.9);
-  animation: popup-appear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: popup-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes popup-appear {
   from {
-    transform: scale(0.7) translateY(20px);
+    transform: scale(0.8);
     opacity: 0;
   }
   to {
-    transform: scale(1) translateY(0);
+    transform: scale(1);
     opacity: 1;
   }
 }
 
 .popup h1 {
   margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 2em;
-  font-weight: 600;
-  letter-spacing: 1px;
+  margin-bottom: 15px;
+  font-size: 1.8em;
 }
 
 .popup p {
-  margin-bottom: 25px;
-  font-size: 1.1em;
-  line-height: 1.6;
+  margin-bottom: 20px;
+  font-size: 1em;
 }
 
-.popup input[type="password"],
 .popup input[type="text"] {
-  /* Added password type styling */
-  width: calc(100% - 24px);
-  padding: 12px;
-  margin-bottom: 25px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  font-size: 1.1em;
-  color: white;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease, background-color 0.3s ease;
-}
-
-.popup input[type="password"]::placeholder,
-.popup input[type="text"]::placeholder {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.popup input[type="password"]:focus,
-.popup input[type="text"]:focus {
-  border-color: #82b1ff;
-  background-color: rgba(255, 255, 255, 0.2);
-  outline: none;
+  width: calc(100% - 22px); /* Full width minus padding */
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1em;
+  box-sizing: border-box; /* Include padding in width */
 }
 
 .popup button {
-  background-color: #82b1ff; /* Light blue accent */
-  color: #303f9f; /* Darker indigo text */
+  background-color: #ffffff;
+  color: #6e8efb;
   border: none;
-  padding: 14px 30px;
-  border-radius: 30px;
-  font-size: 1.2em;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-size: 1.1em;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease,
-    box-shadow 0.3s ease;
-  box-shadow: 0 5px 15px rgba(130, 177, 255, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .popup button:hover {
-  background-color: #a6caff;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(130, 177, 255, 0.4);
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
 }
 
 .popup button:active {
   transform: translateY(0px);
-  box-shadow: 0 5px 15px rgba(130, 177, 255, 0.3);
 }
 
 .error {
-  color: #ff8a80; /* Light red for error */
+  color: #ffdddd;
   font-weight: bold;
   margin-top: 15px;
-  height: 1.2em;
+  height: 1.2em; /* Reserve space to prevent layout jump */
   font-size: 0.9em;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-.error.show {
-  opacity: 1;
 }
 
 /* Loading Spinner Styles */
@@ -139,35 +109,34 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(44, 62, 80, 0.95); /* Dark overlay for loader */
+  background-color: rgba(255, 255, 255, 0.9); /* Light overlay */
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Stack spinner and text vertically */
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 99; /* Below landing page, above AR content */
   opacity: 1;
   transition: opacity 0.5s ease-out;
 }
 
 .loader-wrapper.hidden {
   opacity: 0;
-  pointer-events: none;
+  pointer-events: none; /* Prevent interaction when hidden */
 }
 
 .loader {
-  border: 8px solid #757575; /* Medium grey */
-  border-top: 8px solid #82b1ff; /* Light blue accent */
+  border: 8px solid #f3f3f3; /* Light grey */
+  border-top: 8px solid #6e8efb; /* Blue */
   border-radius: 50%;
-  width: 70px;
-  height: 70px;
-  animation: spin 1.2s linear infinite;
-  margin-bottom: 25px;
+  width: 60px;
+  height: 60px;
+  animation: spin 1.5s linear infinite;
+  margin-bottom: 20px; /* Space between spinner and text */
 }
 
 .loader-wrapper p {
-  font-size: 1.4em;
-  color: #ecf0f1; /* Light grey text */
-  letter-spacing: 1px;
+  font-size: 1.2em;
+  color: #333;
 }
 
 @keyframes spin {
@@ -179,6 +148,33 @@ body {
   }
 }
 
+/* Visual Feedback Overlay Styles */
+#feedback-overlay {
+  position: fixed;
+  bottom: 20px; /* Position at the bottom */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-size: 1.1em;
+  z-index: 90; /* Above AR content, below loader/popup */
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+#feedback-overlay.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0); /* Slide in from bottom if desired */
+}
+
+#feedback-overlay.success {
+  background-color: rgba(76, 175, 80, 0.85); /* Green for success */
+}
+
 /* AR Container - Ensure it takes full space */
 #ar-container {
   width: 100%;
@@ -188,138 +184,33 @@ body {
   left: 0;
 }
 
-/* AR Feedback UI Styles */
-.ar-feedback-ui {
-  position: absolute;
-  bottom: 30px; /* Position at the bottom */
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 15px 25px;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  border-radius: 12px;
-  z-index: 10; /* Above AR scene, below other popups if any */
-  text-align: center;
-  font-size: 1.1em;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
-  display: flex; /* For aligning content */
-  align-items: center;
-}
-
-.ar-feedback-ui.show {
-  opacity: 1;
-}
-.ar-feedback-ui.success {
-  background-color: rgba(76, 175, 80, 0.8); /* Green for success */
-}
-.ar-feedback-ui.error-feedback {
-  /* In case you want an error state */
-  background-color: rgba(244, 67, 54, 0.8); /* Red for error */
-}
-
-.feedback-content {
-  display: flex;
-  align-items: center;
-}
-
-.feedback-content p {
-  margin: 0;
-  margin-left: 15px; /* Space between animation and text */
-}
-
-/* Scan Animation */
-.scan-animation {
-  width: 30px;
-  height: 30px;
-  position: relative;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  border-radius: 5px;
-  overflow: hidden; /* Important for scan line */
-}
-
-.scan-line {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px; /* Thickness of the scan line */
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #82b1ff,
-    transparent
-  ); /* Blueish glow */
-  box-shadow: 0 0 5px #82b1ff, 0 0 10px #82b1ff;
-  animation: scan-anim 2s infinite linear;
-  opacity: 0.8;
-}
-
-@keyframes scan-anim {
-  0% {
-    transform: translateY(-5px); /* Start above */
-    opacity: 0;
-  }
-  20% {
-    transform: translateY(0px);
-    opacity: 0.8;
-  }
-  80% {
-    transform: translateY(
-      27px
-    ); /* Move to bottom (height of box - line height) */
-    opacity: 0.8;
-  }
-  100% {
-    transform: translateY(32px); /* Move past bottom */
-    opacity: 0;
-  }
-}
-
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .popup {
-    padding: 25px 30px;
-    width: 88%;
-  }
-  .popup h1 {
-    font-size: 1.7em;
-  }
-  .popup p {
-    font-size: 1em;
-  }
-  .popup input[type="password"],
-  .popup input[type="text"] {
-    font-size: 1em;
-  }
-  .popup button {
-    padding: 12px 25px;
-    font-size: 1.1em;
+    padding: 20px 25px;
+    width: 85%; /* Use more screen width on smaller devices */
   }
 
-  .ar-feedback-ui {
-    width: 80%;
+  .popup h1 {
+    font-size: 1.5em;
+  }
+
+  .popup p {
+    font-size: 0.9em;
+  }
+
+  .popup input[type="text"] {
+    font-size: 0.9em;
+  }
+
+  .popup button {
+    padding: 10px 20px;
     font-size: 1em;
-    bottom: 20px;
-    padding: 12px 20px;
   }
-  .feedback-content p {
-    margin-left: 10px;
-  }
-  .scan-animation {
-    width: 25px;
-    height: 25px;
-  }
-  @keyframes scan-anim {
-    /* Adjust scan line for smaller box */
-    80% {
-      transform: translateY(22px);
-      opacity: 0.8;
-    }
-    100% {
-      transform: translateY(27px);
-      opacity: 0;
-    }
+
+  #feedback-overlay {
+    font-size: 1em;
+    padding: 8px 15px;
+    width: 80%;
   }
 }
