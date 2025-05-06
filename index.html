@@ -9,44 +9,29 @@
     <title>Simple Animal AR</title>
     <!-- 1. A-Frame Core FIRST -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- 2. AR.js for A-Frame - TRYING A DIFFERENT CDN / SOURCE -->
-    <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.min.js"></script>
-    <!-- 3. Your Custom Component Script AFTER AR.js -->
-    <script>
-      AFRAME.registerComponent("marker-debug", {
-        init: function () {
-          console.log(
-            `[MARKER-DEBUG] Component initialized for marker: ${this.el.id}`
-          );
-          setTimeout(() => {
-            if (this.el.components.marker) {
-              console.log(
-                `%c[MARKER-DEBUG] (Delayed Check) Marker component NOW found on ${
-                  this.el.id
-                }. Pattern URL: ${this.el.getAttribute("url")}`,
-                "color: blue; font-weight: bold;"
-              );
-              console.log(
-                `[MARKER-DEBUG] (Delayed Check) Marker component data:`,
-                JSON.stringify(this.el.components.marker.data)
-              );
-            } else {
-              console.warn(
-                `%c[MARKER-DEBUG] (Delayed Check) Marker component STILL NOT found on ${this.el.id} after delay.`,
-                "color: red; font-weight: bold;"
-              );
-            }
-          }, 500); // Increased delay slightly to 500ms
-        },
-      });
-    </script>
+    <!-- 2. AR.js for A-Frame IMMEDIATELY AFTER -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- 3. Your main CSS -->
     <link rel="stylesheet" href="style.css" />
   </head>
   <body style="margin: 0px; overflow: hidden">
-    <!-- ... rest of body ... -->
-    <div id="landing-page"><!-- ... --></div>
+    <div id="landing-page">
+      <div class="popup">
+        <h1>Animal AR Experience</h1>
+        <p>Enter the name of an animal to unlock:</p>
+        <input
+          type="text"
+          id="passcode-input"
+          placeholder="e.g., bird or dino"
+        />
+        <button id="enter-button">Enter AR</button>
+        <p id="error-message" class="error"></p>
+      </div>
+    </div>
+
     <div id="loader" class="loader-wrapper" style="display: none">
-      <!-- ... -->
+      <div class="loader"></div>
+      <p>Loading AR...</p>
     </div>
 
     <div
@@ -66,20 +51,18 @@
         arjs="sourceType: webcam; debugUIEnabled: true;"
         <!--
         Keep
-        arjs
+        AR.js
         properties
-        simplified
+        simple
         --
       >
-        <!-- Add vr-mode-ui="enabled: false" to hide the VR goggles icon if it appears -->
-        vr-mode-ui="enabled: false" >
+        >
 
         <!-- Bird Marker -->
         <a-marker
           id="marker-bird"
           type="pattern"
           url="markers/marker_bird.patt"
-          marker-debug
         >
           <a-entity
             id="model-bird"
@@ -88,7 +71,8 @@
             position="0 0.5 0"
             rotation="-90 0 0"
             animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"
-          ></a-entity>
+          >
+          </a-entity>
         </a-marker>
 
         <!-- Dino Marker -->
@@ -96,7 +80,6 @@
           id="marker-dino"
           type="pattern"
           url="markers/marker_dino.patt"
-          marker-debug
         >
           <a-entity
             id="model-dino"
@@ -107,12 +90,14 @@
             visible="true"
             animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
             animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
-          ></a-entity>
+          >
+          </a-entity>
         </a-marker>
 
         <a-entity camera></a-entity>
       </a-scene>
     </div>
+
     <script src="script.js"></script>
   </body>
 </html>

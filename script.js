@@ -2,52 +2,44 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed.");
 
-  // --- Elements ---
   const landingPage = document.getElementById("landing-page");
   const passcode_input = document.getElementById("passcode-input");
   const enterButton = document.getElementById("enter-button");
   const errorMessage = document.getElementById("error-message");
   const loader = document.getElementById("loader");
   const arContainer = document.getElementById("ar-container");
-  let arScene = null;
+  let arSceneEl = null;
 
-  // --- Config ---
   const validAnimals = ["bird", "dino"];
   console.log("Valid animals:", validAnimals);
 
-  // --- Function to setup AR listeners ---
-  function setupARListeners() {
-    console.log("[SETUP_AR_LISTENERS_START] Attempting to setup AR listeners.");
-
-    arScene = document.getElementById("ar-scene");
-    if (!arScene) {
+  function checkMarkerComponent(markerId) {
+    const markerEl = document.getElementById(markerId);
+    if (markerEl) {
+      if (markerEl.components.marker && markerEl.components.marker.data) {
+        console.log(
+          `%c[MARKER_CHECK] SUCCESS: AR.js 'marker' component IS PRESENT on ${markerId}. Data:`,
+          "color: green; font-weight: bold;",
+          JSON.stringify(markerEl.components.marker.data)
+        );
+        return true;
+      } else {
+        console.warn(
+          `%c[MARKER_CHECK] FAIL: AR.js 'marker' component NOT present on ${markerId} (or no data).`,
+          "color: orange; font-weight: bold;"
+        );
+      }
+    } else {
       console.error(
-        "[SETUP_AR_LISTENERS_ERROR] AR Scene element (ar-scene) NOT FOUND! Cannot setup listeners."
-      );
-      return;
-    }
-    console.log("[SETUP_AR_LISTENERS_INFO] AR Scene element found.");
-
-    if (!arScene.hasLoaded) {
-      console.warn(
-        "[SETUP_AR_LISTENERS_WARN] AR Scene .hasLoaded is false. Listeners might not attach correctly yet."
+        `[MARKER_CHECK] ERROR: Marker element ${markerId} not found in DOM.`
       );
     }
+    return false;
+  }
 
-    // MODIFIED: Check if AFRAME.AR_JS exists before accessing its properties
-    const arjsVersion =
-      AFRAME.AR_JS && AFRAME.AR_JS.VERSION
-        ? AFRAME.AR_JS.VERSION
-        : "AR.js version not available yet";
-    const aframeVersion =
-      AFRAME && AFRAME.version
-        ? AFRAME.version
-        : "A-Frame version not available yet";
+  function setupModelAndMarkerListeners() {
     console.log(
-      "[SETUP_AR_LISTENERS_INFO] AR.js version:",
-      arjsVersion,
-      "A-Frame version:",
-      aframeVersion
+      "[LISTENERS_SETUP] Attempting to setup model and AR.js marker event listeners."
     );
 
     const markers = {
@@ -60,247 +52,218 @@ document.addEventListener("DOMContentLoaded", () => {
       "model-dino": document.getElementById("model-dino"),
     };
 
+    let allMarkersReady = true;
     for (const markerId in markers) {
+      if (!checkMarkerComponent(markerId)) {
+        // Check if AR.js marker component is active
+        allMarkersReady = false;
+      }
       const markerEl = markers[markerId];
       if (markerEl) {
-        console.log(
-          `[SETUP_AR_LISTENERS_INFO] Found marker element: ${markerId}. Setting up listeners.`
-        );
         markerEl.addEventListener("markerFound", () => {
           console.log(
-            `%c[MARKER_EVENT] SUCCESS: ${markerId} found!`,
-            "color: green; font-weight: bold;"
+            `%c[AR_EVENT] MARKER FOUND: ${markerEl.id}`,
+            "color: blue; font-weight: bold;"
           );
-          const modelEl = models[markerId.replace("marker-", "model-")];
+          const modelEl = models[markerEl.id.replace("marker-", "model-")];
           if (modelEl) {
+            const scale = modelEl.getAttribute("scale");
+            const position = modelEl.getAttribute("position");
+            const rotation = modelEl.getAttribute("rotation");
             console.log(
-              `[MARKER_EVENT_DETAIL] Model for ${markerId}: ${
+              `[AR_EVENT_DETAIL] Model for ${markerEl.id}: ${
                 modelEl.id
-              }, visible: ${modelEl.getAttribute("visible")}, scale:`,
-              modelEl.getAttribute("scale"),
-              "position:",
-              modelEl.getAttribute("position")
+              }, visible: ${modelEl.getAttribute("visible")}`
             );
-            // Uncomment to force visibility for testing:
-            // modelEl.setAttribute('visible', 'true');
-            // console.log(`[MARKER_EVENT_DETAIL] Model ${modelEl.id} visibility forced to true.`);
-          } else {
-            console.error(
-              `[MARKER_EVENT_ERROR] No model entity found for ${markerId}`
+            console.log(
+              `[AR_EVENT_DETAIL]   Scale: x=${scale.x}, y=${scale.y}, z=${scale.z}`
             );
+            console.log(
+              `[AR_EVENT_DETAIL]   Position: x=${position.x}, y=${position.y}, z=${position.z}`
+            );
+            console.log(
+              `[AR_EVENT_DETAIL]   Rotation: x=${rotation.x}, y=${rotation.y}, z=${rotation.z}`
+            );
+            modelEl.setAttribute("visible", "true"); // Force visible on found
           }
         });
         markerEl.addEventListener("markerLost", () => {
           console.log(
-            `%c[MARKER_EVENT] INFO: ${markerId} lost.`,
+            `%c[AR_EVENT] MARKER LOST: ${markerEl.id}`,
             "color: orange;"
           );
         });
         console.log(
-          `[SETUP_AR_LISTENERS_INFO] Listeners for ${markerId} attached.`
+          `[LISTENERS_SETUP] Event listeners for marker ${markerEl.id} attached.`
         );
       } else {
         console.error(
-          `[SETUP_AR_LISTENERS_ERROR] Marker element with ID ${markerId} NOT FOUND!`
+          `[LISTENERS_SETUP] Marker element ${markerId} not found.`
         );
       }
+    }
+
+    if (!allMarkersReady) {
+      console.warn(
+        "[LISTENERS_SETUP] Not all AR.js marker components seem to be active. Marker detection might fail."
+      );
     }
 
     for (const modelId in models) {
       const modelEl = models[modelId];
       if (modelEl) {
-        console.log(
-          `[SETUP_AR_LISTENERS_INFO] Found model entity: ${modelId}. Setting up listeners.`
-        );
         modelEl.addEventListener("model-loaded", (event) => {
           console.log(
-            `%c[MODEL_EVENT] SUCCESS: ${modelId} 3D model loaded successfully.`,
+            `%c[MODEL_EVENT] SUCCESS: ${modelId} 3D model loaded.`,
             "color: green; font-weight: bold;",
             "Detail:",
             event.detail.model
           );
+          const scale = modelEl.getAttribute("scale");
+          const position = modelEl.getAttribute("position");
+          const rotation = modelEl.getAttribute("rotation");
+          console.log(`[MODEL_EVENT_DETAIL] ${modelId} Initial Attributes:`);
           console.log(
-            `[MODEL_EVENT_DETAIL] ${modelId} - Scale:`,
-            modelEl.getAttribute("scale"),
-            "Position:",
-            modelEl.getAttribute("position"),
-            "Rotation:",
-            modelEl.getAttribute("rotation")
+            `[MODEL_EVENT_DETAIL]   Scale: x=${scale.x}, y=${scale.y}, z=${scale.z}`
+          );
+          console.log(
+            `[MODEL_EVENT_DETAIL]   Position: x=${position.x}, y=${position.y}, z=${position.z}`
+          );
+          console.log(
+            `[MODEL_EVENT_DETAIL]   Rotation: x=${rotation.x}, y=${rotation.y}, z=${rotation.z}`
           );
         });
         modelEl.addEventListener("model-error", (event) => {
           console.error(
             `%c[MODEL_EVENT] ERROR: ${modelId} 3D model failed to load.`,
             "color: red; font-weight: bold;",
-            "Error Src:",
-            event.detail.src,
-            "Event:",
-            event
+            "Src:",
+            event.detail.src
           );
         });
         console.log(
-          `[SETUP_AR_LISTENERS_INFO] Listeners for ${modelId} attached.`
+          `[LISTENERS_SETUP] Event listeners for model ${modelId} attached.`
         );
       } else {
-        console.error(
-          `[SETUP_AR_LISTENERS_ERROR] Model entity with ID ${modelId} NOT FOUND!`
-        );
+        console.error(`[LISTENERS_SETUP] Model element ${modelId} not found.`);
       }
     }
-    console.log("[SETUP_AR_LISTENERS_END] Finished setting up AR listeners.");
+    console.log(
+      "[LISTENERS_SETUP] Finished setting up model and AR.js marker event listeners."
+    );
   }
 
-  // --- Event Listener for Passcode ---
   enterButton.addEventListener("click", () => {
     console.log("[PASSCODE_FLOW] Enter AR button clicked.");
     const enteredPasscode = passcode_input.value.trim().toLowerCase();
-    console.log("[PASSCODE_FLOW] Passcode entered:", enteredPasscode);
-
-    errorMessage.textContent = "";
 
     if (validAnimals.includes(enteredPasscode)) {
       console.log("[PASSCODE_FLOW] Access Granted for:", enteredPasscode);
       landingPage.classList.add("hidden");
-      console.log("[PASSCODE_FLOW] Landing page hidden.");
-
       loader.style.display = "flex";
       loader.classList.remove("hidden");
-      console.log("[PASSCODE_FLOW] Loader shown.");
 
       setTimeout(() => {
-        console.log("[PASSCODE_FLOW] Attempting to display AR container.");
         arContainer.style.display = "block";
-        console.log(
-          "[PASSCODE_FLOW] AR container display set to block. A-Frame scene should start initializing."
-        );
+        console.log("[PASSCODE_FLOW] AR container display set to block.");
 
-        arScene = document.getElementById("ar-scene");
-        if (!arScene) {
+        arSceneEl = document.getElementById("ar-scene");
+        if (!arSceneEl) {
           console.error(
-            "[PASSCODE_FLOW_ERROR] AR Scene element (ar-scene) not found immediately after display block!"
+            "[PASSCODE_FLOW_ERROR] AR Scene element (ar-scene) not found!"
           );
-          setTimeout(() => {
-            arScene = document.getElementById("ar-scene");
-            if (arScene) {
-              console.log(
-                "[PASSCODE_FLOW_INFO] AR Scene element found after slight delay."
-              );
-              initArSceneLogic();
-            } else {
-              console.error(
-                "[PASSCODE_FLOW_ERROR] AR Scene element STILL NOT FOUND after delay!"
-              );
-            }
-          }, 100);
           return;
         }
 
-        function initArSceneLogic() {
-          console.log("[PASSCODE_FLOW_INFO] arScene element is available.");
-          if (arScene.hasLoaded) {
+        console.log(
+          '[PASSCODE_FLOW] Waiting for A-Frame scene "loaded" and AR.js "arjs-video-loaded" events...'
+        );
+
+        let sceneLoaded = false;
+        let arVideoLoaded = false;
+
+        function tryInitMainLogic() {
+          if (sceneLoaded && arVideoLoaded) {
             console.log(
-              "[PASSCODE_FLOW_INFO] AR Scene .hasLoaded is true. Setting up AR listeners directly."
+              "%c[SYSTEM_READY] Both A-Frame scene AND AR.js video are loaded. Initializing main listeners.",
+              "background: #222; color: #bada55; font-weight: bold"
             );
-            setupARListeners();
-          } else {
-            console.log(
-              '[PASSCODE_FLOW_WARN] AR Scene not yet loaded (.hasLoaded is false). Adding event listener for "loaded" event.'
-            );
-            arScene.addEventListener(
-              "loaded",
-              () => {
-                console.log(
-                  '%c[SCENE_EVENT] AR Scene "loaded" event fired. Now setting up AR listeners.',
-                  "color: blue; font-weight: bold;"
-                );
-                setupARListeners();
-              },
-              { once: true }
-            );
+            setupModelAndMarkerListeners(); // This now includes the checkMarkerComponent
           }
         }
-        initArSceneLogic();
 
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          navigator.mediaDevices
-            .getUserMedia({ video: true })
-            .then((stream) => {
-              console.log(
-                "[PASSCODE_FLOW_INFO] Camera access granted and stream obtained (test)."
-              );
-              stream.getTracks().forEach((track) => track.stop());
-            })
-            .catch((err) => {
-              console.error(
-                "[PASSCODE_FLOW_ERROR] Error accessing camera:",
-                err.name,
-                err.message
-              );
-            });
+        if (arSceneEl.hasLoaded) {
+          console.log(
+            "[PASSCODE_FLOW_INFO] A-Frame scene.hasLoaded is already true."
+          );
+          sceneLoaded = true;
+          tryInitMainLogic();
         } else {
-          console.warn(
-            "[PASSCODE_FLOW_WARN] navigator.mediaDevices.getUserMedia not supported."
+          arSceneEl.addEventListener(
+            "loaded",
+            () => {
+              console.log(
+                '%c[SCENE_EVENT] A-Frame scene "loaded" event fired.',
+                "color: blue; font-weight: bold;"
+              );
+              sceneLoaded = true;
+              tryInitMainLogic();
+            },
+            { once: true }
           );
         }
 
+        // Listen for AR.js specific event indicating video is ready
+        arSceneEl.addEventListener(
+          "arjs-video-loaded",
+          () => {
+            console.log(
+              '%c[ARJS_EVENT] AR.js "arjs-video-loaded" event fired. Video stream should be active.',
+              "color: purple; font-weight: bold;"
+            );
+            arVideoLoaded = true;
+            tryInitMainLogic();
+          },
+          { once: true }
+        );
+
+        // Fallback timeout for loader (in case events don't fire as expected, though they should)
         setTimeout(() => {
           loader.classList.add("hidden");
-          console.log("[PASSCODE_FLOW] Loader hidden.");
-          setTimeout(() => {
-            loader.style.display = "none";
-          }, 500);
-        }, 3000);
+          setTimeout(() => (loader.style.display = "none"), 500);
+        }, 5000); // Increased timeout slightly
       }, 500);
     } else {
-      console.log(
-        "[PASSCODE_FLOW_ERROR] Access Denied. Invalid passcode:",
-        enteredPasscode
-      );
       errorMessage.textContent = 'Invalid animal name. Try "bird" or "dino".';
       passcode_input.style.animation = "shake 0.5s ease";
-      setTimeout(() => {
-        passcode_input.style.animation = "";
-      }, 500);
+      setTimeout(() => (passcode_input.style.animation = ""), 500);
     }
   });
 
   passcode_input.addEventListener("keypress", (event) => {
-    if (event.key === "Enter") {
-      console.log("[PASSCODE_INPUT] Enter key pressed.");
-      enterButton.click();
-    }
+    if (event.key === "Enter") enterButton.click();
   });
 
+  // Shake animation CSS (ensure it's present)
   if (document.styleSheets.length > 0 && document.styleSheets[0].cssRules) {
     if (
       ![...document.styleSheets[0].cssRules].some(
-        (rule) => rule.name === "shake"
+        (rule) => "name" in rule && rule.name === "shake"
       )
     ) {
-      const styleSheet = document.styleSheets[0];
       try {
-        styleSheet.insertRule(
-          `
-                  @keyframes shake {
-                      0%, 100% { transform: translateX(0); }
-                      25% { transform: translateX(-5px); }
-                      75% { transform: translateX(5px); }
-                  }
-              `,
-          styleSheet.cssRules.length
+        document.styleSheets[0].insertRule(
+          `@keyframes shake {0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }}`,
+          document.styleSheets[0].cssRules.length
         );
         console.log("Shake animation CSS rule inserted.");
       } catch (e) {
-        console.warn(
-          "Could not insert shake animation rule (might already exist or other CSS issue):",
-          e
-        );
+        console.warn("Could not insert shake animation rule:", e);
       }
     }
   } else {
-    console.warn(
-      "Stylesheet not available or no rules, couldn't check/insert shake animation."
-    );
+    console.warn("Stylesheet not available for shake animation.");
   }
+
   console.log("Initial script setup complete.");
 });
