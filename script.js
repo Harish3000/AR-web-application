@@ -9,17 +9,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorMessage = document.getElementById("error-message");
   const loader = document.getElementById("loader");
   const arContainer = document.getElementById("ar-container");
-  let arScene = null; // Will be assigned later
+  let arScene = null;
 
   // --- Config ---
   const validAnimals = ["bird", "dino"];
   console.log("Valid animals:", validAnimals);
 
-  // --- Function to setup AR listeners (call after AR scene is ready) ---
+  // --- Function to setup AR listeners ---
   function setupARListeners() {
     console.log("[SETUP_AR_LISTENERS_START] Attempting to setup AR listeners.");
 
-    arScene = document.getElementById("ar-scene"); // Ensure arScene is fresh
+    arScene = document.getElementById("ar-scene");
     if (!arScene) {
       console.error(
         "[SETUP_AR_LISTENERS_ERROR] AR Scene element (ar-scene) NOT FOUND! Cannot setup listeners."
@@ -30,15 +30,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!arScene.hasLoaded) {
       console.warn(
-        '[SETUP_AR_LISTENERS_WARN] AR Scene .hasLoaded is false. Listeners might not attach correctly yet. This should ideally be true if called from scene "loaded" event.'
+        "[SETUP_AR_LISTENERS_WARN] AR Scene .hasLoaded is false. Listeners might not attach correctly yet."
       );
     }
 
+    // MODIFIED: Check if AFRAME.AR_JS exists before accessing its properties
+    const arjsVersion =
+      AFRAME.AR_JS && AFRAME.AR_JS.VERSION
+        ? AFRAME.AR_JS.VERSION
+        : "AR.js version not available yet";
+    const aframeVersion =
+      AFRAME && AFRAME.version
+        ? AFRAME.version
+        : "A-Frame version not available yet";
     console.log(
       "[SETUP_AR_LISTENERS_INFO] AR.js version:",
-      AFRAME.AR_JS.VERSION,
+      arjsVersion,
       "A-Frame version:",
-      AFRAME.version
+      aframeVersion
     );
 
     const markers = {
@@ -72,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
               "position:",
               modelEl.getAttribute("position")
             );
-            // Force visibility on markerFound for testing
+            // Uncomment to force visibility for testing:
             // modelEl.setAttribute('visible', 'true');
             // console.log(`[MARKER_EVENT_DETAIL] Model ${modelEl.id} visibility forced to true.`);
           } else {
@@ -165,12 +174,11 @@ document.addEventListener("DOMContentLoaded", () => {
           "[PASSCODE_FLOW] AR container display set to block. A-Frame scene should start initializing."
         );
 
-        arScene = document.getElementById("ar-scene"); // Get arScene element reference
+        arScene = document.getElementById("ar-scene");
         if (!arScene) {
           console.error(
             "[PASSCODE_FLOW_ERROR] AR Scene element (ar-scene) not found immediately after display block!"
           );
-          // Try to wait a bit more if it's not immediately available (though it should be)
           setTimeout(() => {
             arScene = document.getElementById("ar-scene");
             if (arScene) {
@@ -183,8 +191,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 "[PASSCODE_FLOW_ERROR] AR Scene element STILL NOT FOUND after delay!"
               );
             }
-          }, 100); // Short delay
-          return; // Don't proceed if scene isn't found
+          }, 100);
+          return;
         }
 
         function initArSceneLogic() {
@@ -228,7 +236,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 err.name,
                 err.message
               );
-              // alert("Error accessing camera: " + err.message + ". Please ensure you are on HTTPS and have granted camera permissions.");
             });
         } else {
           console.warn(
@@ -264,7 +271,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Ensure shake animation CSS is present
   if (document.styleSheets.length > 0 && document.styleSheets[0].cssRules) {
     if (
       ![...document.styleSheets[0].cssRules].some(
