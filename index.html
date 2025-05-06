@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- 4 & 5: Updated viewport for better accessibility and responsiveness -->
+    <!-- Updated viewport meta tag -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Animal AR</title>
     <!-- 1. A-Frame Core FIRST -->
@@ -15,8 +15,7 @@
   <body style="margin: 0px; overflow: hidden">
     <div id="landing-page">
       <div class="popup">
-        <h1>Animal AR Experience</h1>
-        <!-- 1. Update prompt for password -->
+        <h1>AR Experience</h1>
         <p>Enter the password to unlock:</p>
         <input type="text" id="passcode-input" placeholder="Enter password" />
         <button id="enter-button">Enter AR</button>
@@ -27,11 +26,6 @@
     <div id="loader" class="loader-wrapper" style="display: none">
       <div class="loader"></div>
       <p>Loading AR...</p>
-    </div>
-
-    <!-- 3. AR Feedback Element -->
-    <div id="ar-feedback" class="ar-feedback-overlay">
-      Scanning for markers...
     </div>
 
     <div
@@ -45,34 +39,42 @@
         left: 0;
       "
     >
+      <!-- AR Feedback Toast -->
+      <div id="ar-feedback" class="ar-feedback-toast" style="display: none">
+        Initializing AR...
+      </div>
+
       <a-scene
         id="ar-scene"
         embedded
         arjs="sourceType: webcam; debugUIEnabled: true;"
-        renderer="logarithmicDepthBuffer: true;"
-        vr-mode-ui="enabled: false"
-        gesture-detector
+        <!--
+        Keep
+        AR.js
+        properties
+        simple
+        --
       >
         <!-- Bird Marker -->
         <a-marker
           id="marker-bird"
           type="pattern"
           url="markers/marker_bird.patt"
+          data-animal-name="Bird"
         >
           <a-entity
             id="model-bird"
             gltf-model="url(assets/bird.glb)"
+            scale="0.2 0.2 0.2"
             <!--
-            2.
-            Increased
-            bird
+            Bird
             model
-            scale
+            made
+            bigger
             --
           >
-            scale="0.3 0.3 0.3" position="0 0.5 0" rotation="-90 0 0"
-            animation="property: rotation; to: -90 360 0; loop: true; dur:
-            10000; easing: linear" >
+            position="0 0.5 0" rotation="-90 0 0" animation="property: rotation;
+            to: -90 360 0; loop: true; dur: 10000; easing: linear" >
           </a-entity>
         </a-marker>
 
@@ -81,6 +83,7 @@
           id="marker-dino"
           type="pattern"
           url="markers/marker_dino.patt"
+          data-animal-name="Dinosaur"
         >
           <a-entity
             id="model-dino"
