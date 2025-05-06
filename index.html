@@ -42,10 +42,6 @@
         left: 0;
       "
     >
-      <!--
-            DEBUGGING: Set debugUIEnabled: true to see marker detection status.
-            Set to false for final deployment.
-        -->
       <a-scene
         id="ar-scene"
         embedded
@@ -60,17 +56,11 @@
           <a-entity
             id="model-bird"
             gltf-model="url(assets/bird.glb)"
-            <!--
-            Ensure
-            url()
-            wrapper
-            for
-            assets
-            --
+            scale="0.03 0.03 0.03"
+            position="0 0.5 0"
+            rotation="-90 0 0"
+            animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"
           >
-            scale="0.03 0.03 0.03" position="0 0.5 0" rotation="-90 0 0"
-            animation="property: rotation; to: -90 360 0; loop: true; dur:
-            10000; easing: linear">
           </a-entity>
         </a-marker>
 
@@ -83,19 +73,12 @@
           <a-entity
             id="model-dino"
             gltf-model="url(assets/dino.glb)"
-            <!--
-            Ensure
-            url()
-            wrapper
-            for
-            assets
-            --
+            scale="0.3 0.3 0.3"
+            position="0 0 0"
+            rotation="0 0 0"
+            animation__pos="property: position; to: 0 0.1 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
+            animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
           >
-            scale="0.3 0.3 0.3" position="0 0 0" rotation="0 0 0"
-            animation__pos="property: position; to: 0 0.1 0; dir: alternate;
-            loop: true; dur: 2000; easing: easeInOutSine"
-            animation__rot="property: rotation; to: 0 360 0; loop: true; dur:
-            15000; easing: linear">
           </a-entity>
         </a-marker>
 
