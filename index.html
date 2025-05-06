@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Updated viewport meta tag -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Animal AR</title>
     <!-- 1. A-Frame Core FIRST -->
@@ -17,7 +16,7 @@
       <div class="popup">
         <h1>AR Experience</h1>
         <p>Enter the password to unlock:</p>
-        <input type="text" id="passcode-input" placeholder="Enter password" />
+        <input type="text" id="passcode-input" placeholder="Password" />
         <button id="enter-button">Enter AR</button>
         <p id="error-message" class="error"></p>
       </div>
@@ -31,50 +30,38 @@
     <div
       id="ar-container"
       style="
-        display: none;
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
+        display: none; /* Initially hidden, shown by JS */
+        /* Styles moved to style.css for clarity */
       "
     >
-      <!-- AR Feedback Toast -->
-      <div id="ar-feedback" class="ar-feedback-toast" style="display: none">
-        Initializing AR...
-      </div>
+      <div id="ar-feedback-overlay">Point your camera at a marker.</div>
 
       <a-scene
         id="ar-scene"
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: true;"
-        <!--
-        Keep
-        AR.js
-        properties
-        simple
-        --
-      >
+        renderer="logarithmicDepthBuffer: true"
+        vr-mode-ui="enabled: false"
+        loading-screen="dotsColor: white; backgroundColor: black"
+        device-orientation-permission-ui="enabled: false"
+        gesture-detector
+        ><!-- ARJS ATTRIBUTE WILL BE ADDED BY SCRIPT.JS -->
+
         <!-- Bird Marker -->
         <a-marker
           id="marker-bird"
           type="pattern"
           url="markers/marker_bird.patt"
-          data-animal-name="Bird"
+          emitevents="true"
         >
           <a-entity
             id="model-bird"
             gltf-model="url(assets/bird.glb)"
-            scale="0.2 0.2 0.2"
-            <!--
-            Bird
-            model
-            made
-            bigger
-            --
+            scale="0.25 0.25 0.25"
+            position="0 0.5 0"
+            rotation="-90 0 0"
+            animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"
+            visible="false"
           >
-            position="0 0.5 0" rotation="-90 0 0" animation="property: rotation;
-            to: -90 360 0; loop: true; dur: 10000; easing: linear" >
           </a-entity>
         </a-marker>
 
@@ -83,7 +70,7 @@
           id="marker-dino"
           type="pattern"
           url="markers/marker_dino.patt"
-          data-animal-name="Dinosaur"
+          emitevents="true"
         >
           <a-entity
             id="model-dino"
@@ -91,7 +78,7 @@
             scale="1 1 1"
             position="0 0.2 0"
             rotation="0 0 0"
-            visible="true"
+            visible="false"
             animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
             animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
           >

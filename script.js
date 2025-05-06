@@ -8,53 +8,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorMessage = document.getElementById("error-message");
   const loader = document.getElementById("loader");
   const arContainer = document.getElementById("ar-container");
-  const arFeedbackEl = document.getElementById("ar-feedback"); // AR Feedback element
+  const arFeedbackOverlay = document.getElementById("ar-feedback-overlay");
   let arSceneEl = null;
-  let feedbackTimeout = null; // To manage feedback toast timeout
 
-  const correctPassword = "harish"; // Hardcoded password (lowercase for case-insensitive check)
-  console.log("Password check setup.");
-
-  function showArFeedback(message, duration = 3000) {
-    if (arFeedbackEl) {
-      arFeedbackEl.textContent = message;
-      arFeedbackEl.style.display = "block"; // Make it visible
-      arFeedbackEl.classList.add("show"); // Trigger animation
-
-      if (feedbackTimeout) {
-        clearTimeout(feedbackTimeout);
-      }
-      if (duration > 0) {
-        // duration 0 or less means persistent
-        feedbackTimeout = setTimeout(() => {
-          arFeedbackEl.classList.remove("show");
-          // Wait for animation to complete before hiding
-          setTimeout(() => {
-            if (arFeedbackEl.textContent === message) {
-              // Hide only if message hasn't changed
-              arFeedbackEl.style.display = "none";
-            }
-          }, 500);
-        }, duration);
-      }
-    }
-  }
+  const correctPassword = "Harish"; // Hardcoded password
+  console.log("Password set.");
 
   function checkMarkerComponent(markerId) {
     const markerEl = document.getElementById(markerId);
     if (markerEl) {
-      if (markerEl.components.marker && markerEl.components.marker.data) {
+      if (
+        markerEl.getAttribute("arjs-marker") ||
+        (markerEl.components && markerEl.components.marker)
+      ) {
         console.log(
-          `%c[MARKER_CHECK] SUCCESS: AR.js 'marker' component IS PRESENT on ${markerId}. Data:`,
-          "color: green; font-weight: bold;",
-          JSON.stringify(markerEl.components.marker.data)
+          `%c[MARKER_CHECK] INFO: AR.js marker attributes or component present for ${markerId}.`,
+          "color: green;"
         );
         return true;
       } else {
         console.warn(
-          `%c[MARKER_CHECK] FAIL: AR.js 'marker' component NOT present on ${markerId} (or no data).`,
-          "color: orange; font-weight: bold;"
+          `%c[MARKER_CHECK] NOTE: AR.js 'marker' component data not immediately available for ${markerId}. Events are key.`,
+          "color: orange;"
         );
+        return true;
       }
     } else {
       console.error(
@@ -79,6 +56,10 @@ document.addEventListener("DOMContentLoaded", () => {
       "model-dino": document.getElementById("model-dino"),
     };
 
+    Object.values(models).forEach((modelEl) => {
+      if (modelEl) modelEl.setAttribute("visible", "false");
+    });
+
     let allMarkersReady = true;
     for (const markerId in markers) {
       if (!checkMarkerComponent(markerId)) {
@@ -86,45 +67,40 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const markerEl = markers[markerId];
       if (markerEl) {
-        const animalName =
-          markerEl.getAttribute("data-animal-name") || "Unknown Animal";
         markerEl.addEventListener("markerFound", () => {
+          const animalName = markerEl.id.replace("marker-", "");
           console.log(
-            `%c[AR_EVENT] MARKER FOUND: ${markerEl.id}`,
+            `%c[AR_EVENT] MARKER FOUND: ${markerEl.id} (${animalName})`,
             "color: blue; font-weight: bold;"
           );
-          showArFeedback(`Marker for ${animalName} detected!`, 4000); // Show feedback
+          arFeedbackOverlay.textContent = `Marker Detected: ${
+            animalName.charAt(0).toUpperCase() + animalName.slice(1)
+          }!`;
+          arFeedbackOverlay.style.display = "block";
+
           const modelEl = models[markerEl.id.replace("marker-", "model-")];
           if (modelEl) {
-            const scale = modelEl.getAttribute("scale");
-            const position = modelEl.getAttribute("position");
-            const rotation = modelEl.getAttribute("rotation");
+            modelEl.setAttribute("visible", "true");
             console.log(
-              `[AR_EVENT_DETAIL] Model for ${markerEl.id}: ${
-                modelEl.id
-              }, visible: ${modelEl.getAttribute("visible")}`
+              `[AR_EVENT_DETAIL] Model ${modelEl.id} set to visible.`
             );
-            console.log(
-              `[AR_EVENT_DETAIL]   Scale: x=${scale.x}, y=${scale.y}, z=${scale.z}`
-            );
-            console.log(
-              `[AR_EVENT_DETAIL]   Position: x=${position.x}, y=${position.y}, z=${position.z}`
-            );
-            console.log(
-              `[AR_EVENT_DETAIL]   Rotation: x=${rotation.x}, y=${rotation.y}, z=${rotation.z}`
-            );
-            modelEl.setAttribute("visible", "true"); // Force visible on found
           }
         });
         markerEl.addEventListener("markerLost", () => {
+          const animalName = markerEl.id.replace("marker-", "");
           console.log(
-            `%c[AR_EVENT] MARKER LOST: ${markerEl.id}`,
+            `%c[AR_EVENT] MARKER LOST: ${markerEl.id} (${animalName})`,
             "color: orange;"
           );
-          // Optionally, show feedback for marker lost
-          // showArFeedback(`Marker for ${animalName} lost.`, 2000);
-          // Or, revert to "Scanning for markers..." if no other markers are active
-          // For now, debugUI gives visual indication of lost tracking.
+          arFeedbackOverlay.textContent = "Point your camera at a marker.";
+          // Keep overlay visible with the new message
+          arFeedbackOverlay.style.display = "block";
+
+          const modelEl = models[markerEl.id.replace("marker-", "model-")];
+          if (modelEl) {
+            modelEl.setAttribute("visible", "false");
+            console.log(`[AR_EVENT_DETAIL] Model ${modelEl.id} set to hidden.`);
+          }
         });
         console.log(
           `[LISTENERS_SETUP] Event listeners for marker ${markerEl.id} attached.`
@@ -133,16 +109,14 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error(
           `[LISTENERS_SETUP] Marker element ${markerId} not found.`
         );
+        allMarkersReady = false;
       }
     }
 
     if (!allMarkersReady) {
       console.warn(
-        "[LISTENERS_SETUP] Not all AR.js marker components seem to be active. Marker detection might fail."
+        "[LISTENERS_SETUP] Not all marker elements were found. Marker detection might be affected for missing elements."
       );
-    } else {
-      // If all markers are ready (implies AR system is likely functional)
-      // We might show "Scanning for markers..." here if not shown earlier
     }
 
     for (const modelId in models) {
@@ -151,22 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
         modelEl.addEventListener("model-loaded", (event) => {
           console.log(
             `%c[MODEL_EVENT] SUCCESS: ${modelId} 3D model loaded.`,
-            "color: green; font-weight: bold;",
-            "Detail:",
-            event.detail.model
-          );
-          const scale = modelEl.getAttribute("scale");
-          const position = modelEl.getAttribute("position");
-          const rotation = modelEl.getAttribute("rotation");
-          console.log(`[MODEL_EVENT_DETAIL] ${modelId} Initial Attributes:`);
-          console.log(
-            `[MODEL_EVENT_DETAIL]   Scale: x=${scale.x}, y=${scale.y}, z=${scale.z}`
-          );
-          console.log(
-            `[MODEL_EVENT_DETAIL]   Position: x=${position.x}, y=${position.y}, z=${position.z}`
-          );
-          console.log(
-            `[MODEL_EVENT_DETAIL]   Rotation: x=${rotation.x}, y=${rotation.y}, z=${rotation.z}`
+            "color: green; font-weight: bold;"
           );
         });
         modelEl.addEventListener("model-error", (event) => {
@@ -175,10 +134,6 @@ document.addEventListener("DOMContentLoaded", () => {
             "color: red; font-weight: bold;",
             "Src:",
             event.detail.src
-          );
-          showArFeedback(
-            `Error loading model: ${modelId}. Check console.`,
-            5000
           );
         });
         console.log(
@@ -195,23 +150,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   enterButton.addEventListener("click", () => {
     console.log("[PASSCODE_FLOW] Enter AR button clicked.");
-    const enteredPasscode = passcode_input.value.trim().toLowerCase(); // Convert to lowercase for comparison
+    const enteredPasscode = passcode_input.value.trim().toLowerCase();
 
-    if (enteredPasscode === correctPassword) {
+    if (enteredPasscode === correctPassword.toLowerCase()) {
       console.log("[PASSCODE_FLOW] Access Granted.");
-      errorMessage.textContent = ""; // Clear any previous error
+      errorMessage.textContent = "";
       landingPage.classList.add("hidden");
+      setTimeout(() => (landingPage.style.display = "none"), 500); // Hide completely after transition
+
       loader.style.display = "flex";
       loader.classList.remove("hidden");
 
-      // Ensure AR Feedback is hidden initially when AR starts
-      if (arFeedbackEl) {
-        arFeedbackEl.style.display = "none";
-        arFeedbackEl.classList.remove("show");
-      }
-
       setTimeout(() => {
-        arContainer.style.display = "block";
+        arContainer.style.display = "block"; // Show the AR container
         console.log("[PASSCODE_FLOW] AR container display set to block.");
 
         arSceneEl = document.getElementById("ar-scene");
@@ -221,9 +172,19 @@ document.addEventListener("DOMContentLoaded", () => {
           );
           loader.classList.add("hidden");
           setTimeout(() => (loader.style.display = "none"), 500);
-          showArFeedback("Error: AR Scene not found.", 5000);
           return;
         }
+
+        // ***** KEY CHANGE: Dynamically set arjs attribute to initialize camera *****
+        arSceneEl.setAttribute(
+          "arjs",
+          "sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        );
+        console.log(
+          "[PASSCODE_FLOW] AR.js attribute set on a-scene. Camera should initialize now."
+        );
+        // Note: Added detectionMode and matrixCodeType as common defaults, adjust if necessary.
+        // debugUIEnabled: true is kept as per original code. Set to false to hide AR.js debug canvas.
 
         console.log(
           '[PASSCODE_FLOW] Waiting for A-Frame scene "loaded" and AR.js "arjs-video-loaded" events...'
@@ -232,14 +193,22 @@ document.addEventListener("DOMContentLoaded", () => {
         let sceneLoaded = false;
         let arVideoLoaded = false;
 
-        function tryInitMainLogic() {
+        function tryInitMainLogicAndHideLoader() {
           if (sceneLoaded && arVideoLoaded) {
             console.log(
               "%c[SYSTEM_READY] Both A-Frame scene AND AR.js video are loaded. Initializing main listeners.",
               "background: #222; color: #bada55; font-weight: bold"
             );
             setupModelAndMarkerListeners();
-            showArFeedback("Scanning for markers...", 0); // Persistent message until marker found
+
+            loader.classList.add("hidden");
+            arFeedbackOverlay.textContent = "Point your camera at a marker.";
+            arFeedbackOverlay.style.display = "block";
+            setTimeout(() => {
+              if (loader.classList.contains("hidden")) {
+                loader.style.display = "none";
+              }
+            }, 500); // CSS transition duration
           }
         }
 
@@ -248,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "[PASSCODE_FLOW_INFO] A-Frame scene.hasLoaded is already true."
           );
           sceneLoaded = true;
-          // Do not call tryInitMainLogic yet, wait for arjs-video-loaded
+          // If scene is already loaded, AR.js might also be ready or will fire its event soon
         } else {
           arSceneEl.addEventListener(
             "loaded",
@@ -258,96 +227,92 @@ document.addEventListener("DOMContentLoaded", () => {
                 "color: blue; font-weight: bold;"
               );
               sceneLoaded = true;
-              tryInitMainLogic();
+              tryInitMainLogicAndHideLoader();
             },
             { once: true }
           );
         }
 
-        // Listen for AR.js specific event indicating video is ready
+        // This event is crucial as it indicates AR.js has processed the video.
         arSceneEl.addEventListener(
-          "arjs-video-loaded",
+          "arjs-video-loaded", // This specific event confirms video stream is ready
           () => {
             console.log(
               '%c[ARJS_EVENT] AR.js "arjs-video-loaded" event fired. Video stream should be active.',
               "color: purple; font-weight: bold;"
             );
             arVideoLoaded = true;
-            tryInitMainLogic(); // Now try to init, scene might have loaded before or after
+            tryInitMainLogicAndHideLoader();
           },
           { once: true }
         );
 
-        // Fallback for loader hiding
-        const loaderHideTimeout = setTimeout(() => {
-          loader.classList.add("hidden");
-          setTimeout(() => (loader.style.display = "none"), 500);
-          if (!sceneLoaded || !arVideoLoaded) {
-            console.warn(
-              "[LOADER_TIMEOUT] Loader hidden by timeout, but AR system might not be fully ready."
-            );
-            if (!arVideoLoaded)
-              showArFeedback(
-                "AR camera failed to load. Check permissions.",
-                5000
-              );
-            else if (!sceneLoaded)
-              showArFeedback("AR scene failed to load.", 5000);
-          }
-        }, 7000); // Increased timeout slightly more for slower connections/devices
-
-        // Clear loader hide timeout if system ready
-        function clearLoaderOnReady() {
-          if (sceneLoaded && arVideoLoaded) {
-            clearTimeout(loaderHideTimeout);
-            loader.classList.add("hidden");
-            setTimeout(() => (loader.style.display = "none"), 100); // Quick hide
-          }
-        }
-        if (arSceneEl.hasLoaded)
-          arSceneEl.addEventListener("arjs-video-loaded", clearLoaderOnReady, {
-            once: true,
-          });
-        else
-          arSceneEl.addEventListener(
-            "loaded",
-            () => {
-              if (arVideoLoaded) clearLoaderOnReady();
-            },
-            { once: true }
+        // Check if AR.js is already ready (e.g. if arjs attribute was set and it initialized quickly)
+        // This might happen if 'loaded' fires after 'arjs-video-loaded' or if arjs is very fast.
+        if (arSceneEl.components.arjs && arSceneEl.components.arjs.video) {
+          console.log(
+            "%c[ARJS_EVENT_CHECK] AR.js video seems already loaded on check.",
+            "color: purple;"
           );
-      }, 500);
+          arVideoLoaded = true;
+        }
+
+        // Initial call in case both were true already or became true very fast
+        tryInitMainLogicAndHideLoader();
+
+        setTimeout(() => {
+          if (
+            loader.style.display !== "none" &&
+            !(sceneLoaded && arVideoLoaded)
+          ) {
+            console.warn(
+              "[LOADER_FALLBACK] Hiding loader due to timeout. AR events might not have all fired. sceneLoaded:",
+              sceneLoaded,
+              "arVideoLoaded:",
+              arVideoLoaded
+            );
+            loader.classList.add("hidden");
+            setTimeout(() => (loader.style.display = "none"), 500);
+            arFeedbackOverlay.style.display = "block";
+            arFeedbackOverlay.textContent = "Initializing AR...";
+            // Still try to setup listeners, it might work or provide more debug info
+            if (!sceneLoaded || !arVideoLoaded) {
+              console.warn(
+                "Attempting to setup listeners despite incomplete AR init."
+              );
+            }
+            setupModelAndMarkerListeners();
+          } else if (
+            loader.style.display !== "none" &&
+            sceneLoaded &&
+            arVideoLoaded
+          ) {
+            // This case means tryInitMainLogicAndHideLoader should have hidden it
+            console.log(
+              "[LOADER_FALLBACK] System ready, but loader still visible. Forcing hide."
+            );
+            loader.classList.add("hidden");
+            setTimeout(() => (loader.style.display = "none"), 500);
+          }
+        }, 10000);
+      }, 100);
     } else {
       errorMessage.textContent = "Invalid password. Please try again.";
       passcode_input.style.animation = "shake 0.5s ease";
-      setTimeout(() => (passcode_input.style.animation = ""), 500);
+      setTimeout(() => {
+        passcode_input.style.animation = "";
+        passcode_input.focus();
+        passcode_input.select();
+      }, 500);
     }
   });
 
   passcode_input.addEventListener("keypress", (event) => {
-    if (event.key === "Enter") enterButton.click();
+    if (event.key === "Enter") {
+      event.preventDefault();
+      enterButton.click();
+    }
   });
 
-  // Shake animation CSS check (already in CSS file, but good to keep for robustness if CSS loads late)
-  if (document.styleSheets.length > 0 && document.styleSheets[0].cssRules) {
-    if (
-      ![...document.styleSheets[0].cssRules].some(
-        (rule) => rule.type === CSSRule.KEYFRAMES_RULE && rule.name === "shake"
-      )
-    ) {
-      try {
-        document.styleSheets[0].insertRule(
-          `@keyframes shake {0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }}`,
-          document.styleSheets[0].cssRules.length
-        );
-        console.log("Shake animation CSS rule inserted via JS (fallback).");
-      } catch (e) {
-        console.warn("Could not insert shake animation rule via JS:", e);
-      }
-    }
-  } else {
-    console.warn("Stylesheet not available for shake animation check.");
-  }
-
-  console.log("Initial script setup complete.");
+  console.log("Initial script setup complete. Waiting for user interaction.");
 });

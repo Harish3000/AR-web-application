@@ -1,23 +1,26 @@
 body {
-  font-family: sans-serif;
+  font-family: Arial, sans-serif;
   margin: 0;
-  overflow: hidden; /* Already in body style but good to have here */
-  background-color: #f0f0f0;
-  color: #333;
+  overflow: hidden; /* Prevents scrollbars on the body */
+  background-color: #333; /* Fallback background */
+  width: 100%;
+  height: 100%;
+  position: fixed; /* Ensure body itself doesn't scroll */
 }
 
 #landing-page {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   width: 100vw;
-  background-color: rgba(0, 0, 0, 0.5);
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
   position: fixed;
   top: 0;
   left: 0;
   z-index: 1000;
-  transition: opacity 0.3s ease-out;
+  opacity: 1;
+  transition: opacity 0.5s ease-out;
 }
 
 #landing-page.hidden {
@@ -26,13 +29,13 @@ body {
 }
 
 .popup {
-  background: white;
-  padding: 25px 30px;
-  border-radius: 8px;
+  background-color: white;
+  padding: 30px 40px;
+  border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   text-align: center;
-  width: 90%;
-  max-width: 400px;
+  max-width: 90%;
+  width: 350px;
 }
 
 .popup h1 {
@@ -42,30 +45,30 @@ body {
 }
 
 .popup p {
-  margin-bottom: 15px;
   color: #555;
+  margin-bottom: 15px;
   font-size: 1em;
 }
 
 #passcode-input {
-  width: calc(100% - 22px); /* Account for padding */
+  width: calc(100% - 22px); /* Full width minus padding */
   padding: 10px;
   margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 5px;
   font-size: 1em;
+  box-sizing: border-box;
 }
 
 #enter-button {
   background-color: #007bff;
   color: white;
-  padding: 12px 20px;
   border: none;
-  border-radius: 4px;
+  padding: 12px 25px;
+  border-radius: 5px;
   cursor: pointer;
   font-size: 1em;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.3s ease;
 }
 
 #enter-button:hover {
@@ -86,19 +89,25 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex; /* Initially none, JS changes this */
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 2000; /* Above landing page, below AR potentially if not hidden */
-  color: white;
+  z-index: 999;
+  opacity: 1;
   transition: opacity 0.5s ease-out;
 }
 
 .loader-wrapper.hidden {
   opacity: 0;
-  pointer-events: none;
+  pointer-events: none; /* Allow clicks through when hidden */
+}
+
+.loader-wrapper p {
+  color: white;
+  margin-top: 15px;
+  font-size: 1.2em;
 }
 
 .loader {
@@ -108,11 +117,6 @@ body {
   width: 60px;
   height: 60px;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
-}
-
-.loader-wrapper p {
-  font-size: 1.2em;
 }
 
 @keyframes spin {
@@ -124,53 +128,52 @@ body {
   }
 }
 
-/* Shake animation (as in original JS) */
+/* Shake animation for input */
 @keyframes shake {
   0%,
   100% {
     transform: translateX(0);
   }
   25% {
-    transform: translateX(-5px);
+    transform: translateX(-6px);
   }
   75% {
-    transform: translateX(5px);
+    transform: translateX(6px);
   }
 }
 
-/* AR Feedback Toast */
-.ar-feedback-toast {
-  position: fixed;
-  bottom: 20px; /* Position at the bottom */
+/* AR Container and Scene */
+#ar-container {
+  /* display: none; is set inline initially, JS toggles to block */
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden; /* Important: Prevents children from causing scrollbars */
+}
+
+#ar-container > a-scene {
+  width: 100%;
+  height: 100%;
+  display: block; /* Ensure a-scene takes up space correctly */
+}
+
+/* AR Feedback Overlay */
+#ar-feedback-overlay {
+  position: absolute;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   background-color: rgba(0, 0, 0, 0.75);
   color: white;
   padding: 10px 20px;
-  border-radius: 20px;
-  font-size: 0.9em;
-  z-index: 100; /* Above AR scene content but below potential AR.js UI */
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  transition: opacity 0.5s ease, transform 0.3s ease;
-  opacity: 0; /* Start hidden, JS will show */
-}
-
-.ar-feedback-toast.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0); /* Animate in */
-}
-
-/* Ensure AR container takes full space */
-#ar-container {
-  /* styles already inline, but for clarity: */
-  /* width: 100%; */
-  /* height: 100%; */
-  /* position: absolute; */
-  /* top: 0; */
-  /* left: 0; */
-}
-
-/* A-Frame canvas can sometimes have issues, ensure it's not blocked */
-.a-canvas {
-  z-index: 10; /* Default, ensure it's not unexpectedly covered */
+  border-radius: 8px;
+  font-size: 1em;
+  z-index: 10;
+  text-align: center;
+  display: none;
+  max-width: 90%;
+  box-sizing: border-box;
+  pointer-events: none;
 }
