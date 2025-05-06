@@ -7,8 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorMessage = document.getElementById("error-message");
   const loader = document.getElementById("loader");
   const arContainer = document.getElementById("ar-container");
-  const scanFeedback = document.getElementById("scan-feedback");
-  const successFeedback = document.getElementById("success-feedback");
+  const scanningIndicator = document.getElementById("scanning-indicator");
   let arSceneEl = null;
 
   const validPassword = "Harish";
@@ -64,15 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
             `%c[AR_EVENT] MARKER FOUND: ${markerEl.id}`,
             "color: blue; font-weight: bold;"
           );
-          scanFeedback.style.display = "none";
-          const animalName =
-            markerEl.id === "marker-bird" ? "Bird" : "Dinosaur";
-          successFeedback.textContent = `QR Received - This is a ${animalName}!`;
-          successFeedback.style.display = "block";
-          setTimeout(() => {
-            successFeedback.style.display = "none";
-          }, 3000);
-
           const modelEl = models[markerEl.id.replace("marker-", "model-")];
           if (modelEl) {
             const scale = modelEl.getAttribute("scale");
@@ -92,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log(
               `[AR_EVENT_DETAIL]   Rotation: x=${rotation.x}, y=${rotation.y}, z=${rotation.z}`
             );
-            modelEl.setAttribute("visible", "true");
+            modelEl.setAttribute("visible", true);
           }
         });
         markerEl.addEventListener("markerLost", () => {
@@ -100,7 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
             `%c[AR_EVENT] MARKER LOST: ${markerEl.id}`,
             "color: orange;"
           );
-          scanFeedback.style.display = "block";
+          const modelEl = models[markerEl.id.replace("marker-", "model-")];
+          if (modelEl) {
+            modelEl.setAttribute("visible", false);
+          }
         });
         console.log(
           `[LISTENERS_SETUP] Event listeners for marker ${markerEl.id} attached.`
@@ -197,8 +190,8 @@ document.addEventListener("DOMContentLoaded", () => {
               "%c[SYSTEM_READY] Both A-Frame scene AND AR.js video are loaded. Initializing main listeners.",
               "background: #222; color: #bada55; font-weight: bold"
             );
-            scanFeedback.style.display = "block";
             setupModelAndMarkerListeners();
+            scanningIndicator.style.display = "block";
           }
         }
 
@@ -251,4 +244,26 @@ document.addEventListener("DOMContentLoaded", () => {
   passcodeInput.addEventListener("keypress", (event) => {
     if (event.key === "Enter") enterButton.click();
   });
+
+  if (document.styleSheets.length > 0 && document.styleSheets[0].cssRules) {
+    if (
+      ![...document.styleSheets[0].cssRules].some(
+        (rule) => "name" in rule && rule.name === "shake"
+      )
+    ) {
+      try {
+        document.styleSheets[0].insertRule(
+          `@keyframes shake {0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }}`,
+          document.styleSheets[0].cssRules.length
+        );
+        console.log("Shake animation CSS rule inserted.");
+      } catch (e) {
+        console.warn("Could not insert shake animation rule:", e);
+      }
+    }
+  } else {
+    console.warn("Stylesheet not available for shake animation.");
+  }
+
+  console.log("Initial script setup complete.");
 });

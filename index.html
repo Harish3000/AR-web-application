@@ -2,13 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Simple Animal AR</title>
+    <!-- 1. A-Frame Core FIRST -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- 2. AR.js for A-Frame IMMEDIATELY AFTER -->
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- 3. Your main CSS -->
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
+  <body style="margin: 0px; overflow: hidden">
     <div id="landing-page">
       <div class="popup">
         <h1>Animal AR Experience</h1>
@@ -28,12 +34,33 @@
       <p>Loading AR...</p>
     </div>
 
-    <div id="ar-container" style="display: none">
+    <div
+      id="ar-container"
+      style="
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      "
+    >
+      <div id="qr-feedback" class="qr-feedback">
+        <div id="scanning-indicator" class="scanning-indicator">
+          <p>Scanning for QR <span class="scan-dots"></span></p>
+        </div>
+        <div id="success-message" class="success-message" style="display: none">
+          <p id="success-text">QR Detected.</p>
+        </div>
+      </div>
+
       <a-scene
         id="ar-scene"
         embedded
         arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        style="width: 100%; height: 100vh"
       >
+        <!-- Bird Marker -->
         <a-marker
           id="marker-bird"
           type="pattern"
@@ -42,7 +69,7 @@
           <a-entity
             id="model-bird"
             gltf-model="url(assets/bird.glb)"
-            scale="0.1 0.1 0.1"
+            scale="0.5 0.5 0.5"
             position="0 0.5 0"
             rotation="-90 0 0"
             animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"
@@ -50,6 +77,7 @@
           </a-entity>
         </a-marker>
 
+        <!-- Dino Marker -->
         <a-marker
           id="marker-dino"
           type="pattern"
@@ -71,9 +99,6 @@
         <a-entity camera></a-entity>
       </a-scene>
     </div>
-
-    <div id="scan-feedback">QR Detected - Scanning...</div>
-    <div id="success-feedback"></div>
 
     <script src="script.js"></script>
   </body>
