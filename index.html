@@ -10,8 +10,30 @@
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <link rel="stylesheet" href="style.css" />
+    <script>
+      // Custom A-Frame component for logging marker initialization
+      AFRAME.registerComponent("marker-debug", {
+        init: function () {
+          console.log(
+            `[MARKER-DEBUG] Component initialized for marker: ${this.el.id}`
+          );
+          if (this.el.components.marker) {
+            console.log(
+              `[MARKER-DEBUG] Marker component found on ${
+                this.el.id
+              }. Pattern URL: ${this.el.getAttribute("url")}`
+            );
+          } else {
+            console.warn(
+              `[MARKER-DEBUG] Marker component NOT found on ${this.el.id} at init.`
+            );
+          }
+        },
+      });
+    </script>
   </head>
   <body style="margin: 0px; overflow: hidden">
+    <!-- ... (rest of your landing page, loader divs) ... -->
     <div id="landing-page">
       <div class="popup">
         <h1>Animal AR Experience</h1>
@@ -52,6 +74,7 @@
           id="marker-bird"
           type="pattern"
           url="markers/marker_bird.patt"
+          marker-debug
         >
           <a-entity
             id="model-bird"
@@ -69,16 +92,26 @@
           id="marker-dino"
           type="pattern"
           url="markers/marker_dino.patt"
+          marker-debug
         >
           <a-entity
             id="model-dino"
             gltf-model="url(assets/dino.glb)"
-            scale="0.3 0.3 0.3"
-            position="0 0 0"
-            rotation="0 0 0"
-            animation__pos="property: position; to: 0 0.1 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
-            animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
+            scale="1 1 1"
+            <!--
+            Keep
+            scale
+            large
+            for
+            testing
+            --
           >
+            position="0 0.2 0"
+            <!-- Keep position adjusted for testing -->
+            rotation="0 0 0" visible="true" animation__pos="property: position;
+            to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing:
+            easeInOutSine" animation__rot="property: rotation; to: 0 360 0;
+            loop: true; dur: 15000; easing: linear">
           </a-entity>
         </a-marker>
 
