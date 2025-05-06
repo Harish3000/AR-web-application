@@ -7,9 +7,11 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Simple Animal AR</title>
+    <!-- 1. A-Frame Core FIRST -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- 2. AR.js for A-Frame IMMEDIATELY AFTER -->
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <link rel="stylesheet" href="style.css" />
+    <!-- 3. Your Custom Component Script AFTER AR.js -->
     <script>
       // Custom A-Frame component for logging marker initialization
       AFRAME.registerComponent("marker-debug", {
@@ -17,23 +19,32 @@
           console.log(
             `[MARKER-DEBUG] Component initialized for marker: ${this.el.id}`
           );
-          if (this.el.components.marker) {
-            console.log(
-              `[MARKER-DEBUG] Marker component found on ${
-                this.el.id
-              }. Pattern URL: ${this.el.getAttribute("url")}`
-            );
-          } else {
-            console.warn(
-              `[MARKER-DEBUG] Marker component NOT found on ${this.el.id} at init.`
-            );
-          }
+          // Check a little later using a timeout to give AR.js more time
+          setTimeout(() => {
+            if (this.el.components.marker) {
+              console.log(
+                `[MARKER-DEBUG] (Delayed Check) Marker component NOW found on ${
+                  this.el.id
+                }. Pattern URL: ${this.el.getAttribute("url")}`
+              );
+              console.log(
+                `[MARKER-DEBUG] (Delayed Check) Marker component data:`,
+                JSON.stringify(this.el.components.marker.data)
+              );
+            } else {
+              console.warn(
+                `[MARKER-DEBUG] (Delayed Check) Marker component STILL NOT found on ${this.el.id} after delay.`
+              );
+            }
+          }, 100); // 100ms delay, can be adjusted
         },
       });
     </script>
+    <!-- 4. Your main CSS -->
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body style="margin: 0px; overflow: hidden">
-    <!-- ... (rest of your landing page, loader divs) ... -->
+    <!-- ... (rest of your landing page, loader, ar-container divs) ... -->
     <div id="landing-page">
       <div class="popup">
         <h1>Animal AR Experience</h1>
@@ -67,8 +78,15 @@
       <a-scene
         id="ar-scene"
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: true; detectionMode: mono_and_matrix; matrixCodeType: 3x3; trackingMethod: best;"
+        arjs="sourceType: webcam; debugUIEnabled: true;"
+        <!--
+        Simplified
+        arjs
+        properties
+        --
       >
+        >
+
         <!-- Bird Marker -->
         <a-marker
           id="marker-bird"
@@ -98,20 +116,12 @@
             id="model-dino"
             gltf-model="url(assets/dino.glb)"
             scale="1 1 1"
-            <!--
-            Keep
-            scale
-            large
-            for
-            testing
-            --
-          >
             position="0 0.2 0"
-            <!-- Keep position adjusted for testing -->
-            rotation="0 0 0" visible="true" animation__pos="property: position;
-            to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing:
-            easeInOutSine" animation__rot="property: rotation; to: 0 360 0;
-            loop: true; dur: 15000; easing: linear">
+            rotation="0 0 0"
+            visible="true"
+            animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
+            animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
+          >
           </a-entity>
         </a-marker>
 
@@ -119,6 +129,7 @@
       </a-scene>
     </div>
 
+    <!-- 5. Your main script.js LAST (or at least after entity definitions) -->
     <script src="script.js"></script>
   </body>
 </html>
