@@ -1,23 +1,29 @@
-/* Basic Reset & Body */
+/* Basic Reset & Body Styles */
 body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   margin: 0;
-  font-family: sans-serif;
-  overflow: hidden; /* Prevent scrolling */
-  background-color: #f0f0f0; /* Fallback background */
+  overflow: hidden;
+  background-color: #f0f0f0;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh; /* Ensure full viewport height for landing page */
 }
 
 /* Landing Page Styles */
 #landing-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7); /* Dark overlay */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent overlay */
+  z-index: 1000;
   opacity: 1;
   transition: opacity 0.5s ease-out;
 }
@@ -28,110 +34,89 @@ body {
 }
 
 .popup {
-  background: linear-gradient(135deg, #6e8efb, #a777e3); /* Nice gradient */
+  background-color: white;
   padding: 30px 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   text-align: center;
-  color: white;
-  max-width: 90%;
-  width: 400px; /* Max width for the popup */
-  transform: scale(0.9);
-  animation: popup-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
-
-@keyframes popup-appear {
-  from {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  width: 90%;
+  max-width: 400px;
 }
 
 .popup h1 {
   margin-top: 0;
-  margin-bottom: 15px;
+  color: #333;
   font-size: 1.8em;
 }
 
 .popup p {
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+  color: #555;
   font-size: 1em;
 }
 
-.popup input[type="text"] {
-  width: calc(100% - 22px); /* Full width minus padding */
+#passcode-input {
+  width: calc(100% - 22px); /* Account for padding and border */
   padding: 10px;
   margin-bottom: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1em;
-  box-sizing: border-box; /* Include padding in width */
+  box-sizing: border-box;
 }
 
-.popup button {
-  background-color: #ffffff;
-  color: #6e8efb;
-  border: none;
+#enter-button {
+  background-color: #007bff;
+  color: white;
   padding: 12px 25px;
-  border-radius: 25px;
-  font-size: 1.1em;
-  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
 }
 
-.popup button:hover {
-  background-color: #f0f0f0;
-  transform: translateY(-2px);
-}
-
-.popup button:active {
-  transform: translateY(0px);
+#enter-button:hover {
+  background-color: #0056b3;
 }
 
 .error {
-  color: #ffdddd;
-  font-weight: bold;
-  margin-top: 15px;
-  height: 1.2em; /* Reserve space to prevent layout jump */
+  color: red;
   font-size: 0.9em;
+  min-height: 1.2em; /* Reserve space to prevent layout shift */
+  margin-top: 10px;
 }
 
-/* Loading Spinner Styles */
+/* Loader Styles */
 .loader-wrapper {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.9); /* Light overlay */
-  display: flex;
-  flex-direction: column; /* Stack spinner and text vertically */
-  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex; /* Used for flex display in JS */
+  flex-direction: column;
   align-items: center;
-  z-index: 99; /* Below landing page, above AR content */
+  justify-content: center;
+  z-index: 2000;
   opacity: 1;
-  transition: opacity 0.5s ease-out;
+  transition: opacity 0.5s ease-out 0.3s; /* Slight delay for fade out */
 }
 
 .loader-wrapper.hidden {
   opacity: 0;
-  pointer-events: none; /* Prevent interaction when hidden */
+  pointer-events: none;
 }
 
 .loader {
   border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #6e8efb; /* Blue */
+  border-top: 8px solid #3498db; /* Blue */
   border-radius: 50%;
   width: 60px;
   height: 60px;
-  animation: spin 1.5s linear infinite;
-  margin-bottom: 20px; /* Space between spinner and text */
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
 }
 
 .loader-wrapper p {
@@ -148,69 +133,66 @@ body {
   }
 }
 
-/* Visual Feedback Overlay Styles */
-#feedback-overlay {
+/* Shake Animation (moved from JS) */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
+}
+
+/* AR Feedback Overlay Styles */
+.ar-feedback-overlay {
   position: fixed;
-  bottom: 20px; /* Position at the bottom */
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   background-color: rgba(0, 0, 0, 0.75);
   color: white;
   padding: 10px 20px;
-  border-radius: 25px;
-  font-size: 1.1em;
-  z-index: 90; /* Above AR content, below loader/popup */
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  font-size: 0.9em; /* Adjusted for mobile */
+  z-index: 10000; /* High z-index to be on top of AR view */
   text-align: center;
+  opacity: 0; /* Start hidden */
+  visibility: hidden; /* Start hidden */
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+  max-width: 90%; /* Ensure it doesn't overflow on small screens */
+  box-sizing: border-box;
 }
 
-#feedback-overlay.visible {
+.ar-feedback-overlay.visible {
   opacity: 1;
-  transform: translateX(-50%) translateY(0); /* Slide in from bottom if desired */
+  visibility: visible;
 }
 
-#feedback-overlay.success {
-  background-color: rgba(76, 175, 80, 0.85); /* Green for success */
-}
-
-/* AR Container - Ensure it takes full space */
+/* Ensure AR container takes full space when visible */
 #ar-container {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
+  /* styles already inline, but ensure it occupies full viewport */
+  width: 100vw;
+  height: 100vh;
 }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
+/* A-Frame canvas can sometimes cause scrollbars, ensure it doesn't */
+.a-canvas {
+  position: fixed !important; /* Important to override defaults if needed */
+}
+
+/* Media Queries for Responsiveness */
+@media (min-width: 600px) {
   .popup {
-    padding: 20px 25px;
-    width: 85%; /* Use more screen width on smaller devices */
+    padding: 40px 50px;
   }
-
   .popup h1 {
-    font-size: 1.5em;
+    font-size: 2em;
   }
-
-  .popup p {
-    font-size: 0.9em;
-  }
-
-  .popup input[type="text"] {
-    font-size: 0.9em;
-  }
-
-  .popup button {
-    padding: 10px 20px;
+  .ar-feedback-overlay {
     font-size: 1em;
-  }
-
-  #feedback-overlay {
-    font-size: 1em;
-    padding: 8px 15px;
-    width: 80%;
   }
 }

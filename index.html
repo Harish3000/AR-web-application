@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- UPDATED Viewport Meta -->
+    <!-- 4 & 5: Updated viewport for better accessibility and responsiveness -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simple Animal AR</title>
     <!-- 1. A-Frame Core FIRST -->
@@ -13,39 +13,27 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body style="margin: 0px; overflow: hidden">
-    <!-- Landing Page / Passcode Popup -->
     <div id="landing-page">
       <div class="popup">
-        <h1>AR Experience</h1>
-        <p>Enter the secret password to unlock:</p>
-        <!-- UPDATED Text -->
-        <input
-          type="text"
-          id="passcode-input"
-          placeholder="Enter Password"
-          <!--
-          UPDATED
-          placeholder
-          --
-        />
-        />
+        <h1>Animal AR Experience</h1>
+        <!-- 1. Update prompt for password -->
+        <p>Enter the password to unlock:</p>
+        <input type="text" id="passcode-input" placeholder="Enter password" />
         <button id="enter-button">Enter AR</button>
         <p id="error-message" class="error"></p>
       </div>
     </div>
 
-    <!-- Loading Spinner -->
     <div id="loader" class="loader-wrapper" style="display: none">
       <div class="loader"></div>
       <p>Loading AR...</p>
     </div>
 
-    <!-- Visual Feedback Overlay -->
-    <div id="feedback-overlay" style="display: none">
-      <p id="feedback-text">Scanning for QR...</p>
+    <!-- 3. AR Feedback Element -->
+    <div id="ar-feedback" class="ar-feedback-overlay">
+      Scanning for markers...
     </div>
 
-    <!-- AR Scene Container -->
     <div
       id="ar-container"
       style="
@@ -61,48 +49,30 @@
         id="ar-scene"
         embedded
         arjs="sourceType: webcam; debugUIEnabled: true;"
-        <!--
-        Keep
-        debugUI
-        for
-        testing,
-        set
-        to
-        false
-        for
-        final
-        --
+        renderer="logarithmicDepthBuffer: true;"
+        vr-mode-ui="enabled: false"
+        gesture-detector
       >
-        >
         <!-- Bird Marker -->
         <a-marker
           id="marker-bird"
           type="pattern"
           url="markers/marker_bird.patt"
-          data-animal-name="Bird"
-          <!--
-          Custom
-          attribute
-          to
-          store
-          animal
-          name
-          --
         >
-          >
           <a-entity
             id="model-bird"
             gltf-model="url(assets/bird.glb)"
-            scale="0.3 0.3 0.3"
             <!--
-            UPDATED
-            Scale
-            for
-            Bird
+            2.
+            Increased
+            bird
+            model
+            scale
             --
           >
-            position="0 0.5 0" rotation="-90 0 0" animation="property: rotation;
-            to: -90 360 0; loop: true; dur: 10000; easing: linear" >
+            scale="0.3 0.3 0.3" position="0 0.5 0" rotation="-90 0 0"
+            animation="property: rotation; to: -90 360 0; loop: true; dur:
+            10000; easing: linear" >
           </a-entity>
         </a-marker>
 
@@ -111,17 +81,7 @@
           id="marker-dino"
           type="pattern"
           url="markers/marker_dino.patt"
-          data-animal-name="Dinosaur"
-          <!--
-          Custom
-          attribute
-          to
-          store
-          animal
-          name
-          --
         >
-          >
           <a-entity
             id="model-dino"
             gltf-model="url(assets/dino.glb)"
