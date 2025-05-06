@@ -7,16 +7,20 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Simple Animal AR</title>
-    <!-- 1. A-Frame Core FIRST -->
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- 2. AR.js for A-Frame - TRYING A DIFFERENT SOURCE -->
-    <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.min.js"></script>
-    <!-- 3. Your main CSS -->
+    <!-- OLDER STABLE A-FRAME -->
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <!-- AR.JS for A-Frame 1.3.0 (from a more stable CDN if possible, or a specific commit) -->
+    <!-- Let's try the version often used with 1.3.0, though CDN links can change -->
+    <!-- Alternative AR.js link (check compatibility, this one is older but might be more stable with A-Frame 1.3.0) -->
+    <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js@1.7.7/aframe/build/aframe-ar.js"></script>
+    <!-- OR if the above doesn't work, try a slightly different one sometimes cited for stability:
+    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.7.2/aframe/build/aframe-ar.js"></script>
+    -->
     <link rel="stylesheet" href="style.css" />
   </head>
   <body style="margin: 0px; overflow: hidden">
+    <!-- ... rest of your HTML (landing page, loader) ... -->
     <div id="landing-page">
-      <!-- ... (popup content) ... -->
       <div class="popup">
         <h1>Animal AR Experience</h1>
         <p>Enter the name of an animal to unlock:</p>
@@ -31,7 +35,6 @@
     </div>
 
     <div id="loader" class="loader-wrapper" style="display: none">
-      <!-- ... (loader content) ... -->
       <div class="loader"></div>
       <p>Loading AR...</p>
     </div>
@@ -47,20 +50,24 @@
         left: 0;
       "
     >
+      <!-- NOTE: Some arjs parameters might change syntax or availability with older AR.js versions -->
+      <!-- Let's start very simple for AR.js on the scene -->
       <a-scene
         id="ar-scene"
         embedded
         arjs="sourceType: webcam; debugUIEnabled: true;"
+        renderer="logarithmicDepthBuffer: true;"
         <!--
-        Keep
+        Often
+        recommended
+        with
+        older
         AR.js
-        properties
-        simple
         --
       >
         >
+        <!-- Removed trackingMethod etc. for now -->
 
-        <!-- Bird Marker -->
         <a-marker
           id="marker-bird"
           type="pattern"
@@ -77,7 +84,6 @@
           </a-entity>
         </a-marker>
 
-        <!-- Dino Marker -->
         <a-marker
           id="marker-dino"
           type="pattern"
@@ -96,10 +102,10 @@
           </a-entity>
         </a-marker>
 
-        <a-entity camera></a-entity>
+        <!-- Use a-camera instead of a-entity camera for older AR.js compatibility -->
+        <a-camera gps-camera rotation-reader> </a-camera>
       </a-scene>
     </div>
-
     <script src="script.js"></script>
   </body>
 </html>
