@@ -8,125 +8,151 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorMessage = document.getElementById("error-message");
   const loader = document.getElementById("loader");
   const arContainer = document.getElementById("ar-container");
-  const viewfinder = document.getElementById("viewfinder");
   let arSceneEl = null;
 
   const validAnimals = ["bird", "dino"];
   console.log("Valid animals:", validAnimals);
 
-  // --- A-Frame Component for Handling Marker Events ---
-  AFRAME.registerComponent("markerhandler", {
-    init: function () {
-      console.log(`[MARKERHANDLER] Initialized for marker: ${this.el.id}`);
-      this.modelEntity = this.el.querySelector("a-entity[gltf-model]"); // Find the child model
-
-      if (!this.modelEntity) {
-        console.error(
-          `[MARKERHANDLER] No model entity found as child of ${this.el.id}`
-        );
-        return;
-      }
-
-      this.el.addEventListener("markerFound", () => {
+  function checkMarkerComponent(markerId) {
+    const markerEl = document.getElementById(markerId);
+    if (markerEl) {
+      if (markerEl.components.marker && markerEl.components.marker.data) {
         console.log(
-          `%c[MARKERHANDLER_EVENT] MARKER FOUND: ${this.el.id}`,
-          "color: blue; font-weight: bold;"
+          `%c[MARKER_CHECK] SUCCESS: AR.js 'marker' component IS PRESENT on ${markerId}. Data:`,
+          "color: green; font-weight: bold;",
+          JSON.stringify(markerEl.components.marker.data)
         );
-        if (this.modelEntity) {
-          this.modelEntity.setAttribute("visible", "true");
-          console.log(
-            `[MARKERHANDLER_EVENT] Model ${this.modelEntity.id} set to visible.`
-          );
-        }
-      });
-
-      this.el.addEventListener("markerLost", () => {
-        console.log(
-          `%c[MARKERHANDLER_EVENT] MARKER LOST: ${this.el.id}`,
-          "color: orange;"
-        );
-        if (this.modelEntity) {
-          this.modelEntity.setAttribute("visible", "false");
-          console.log(
-            `[MARKERHANDLER_EVENT] Model ${this.modelEntity.id} set to invisible.`
-          );
-        }
-      });
-
-      // Check if AR.js marker component is actually on this.el
-      // This check runs when 'markerhandler' inits, which is part of A-Frame's entity lifecycle
-      setTimeout(() => {
-        // Slight delay to give AR.js marker component time to attach
-        if (
-          this.el.components &&
-          this.el.components.marker &&
-          this.el.components.marker.data
-        ) {
-          console.log(
-            `%c[MARKERHANDLER_CHECK] SUCCESS: AR.js 'marker' component IS PRESENT on ${this.el.id}. Data:`,
-            "color: green; font-weight: bold;",
-            JSON.stringify(this.el.components.marker.data)
-          );
-        } else {
-          let componentStatus = "NOT present";
-          if (this.el.components) {
-            componentStatus =
-              "'marker' key missing in components object or no data";
-          } else {
-            componentStatus = "this.el.components object itself is missing";
-          }
-          console.warn(
-            `%c[MARKERHANDLER_CHECK] FAIL: AR.js 'marker' component ${componentStatus} on ${this.el.id} (after delay).`,
-            "color: red; font-weight: bold;"
-          );
-        }
-      }, 1000); // 1 second delay for this check
-    },
-  });
-
-  // --- Model Event Listeners (can still be global or attached differently if needed) ---
-  function setupGlobalModelListeners() {
-    console.log(
-      "[MODEL_LISTENERS_SETUP] Setting up global listeners for model events."
-    );
-    const modelsToWatch = ["model-bird", "model-dino"];
-    modelsToWatch.forEach((modelId) => {
-      const modelEl = document.getElementById(modelId);
-      if (modelEl) {
-        modelEl.removeEventListener("model-loaded", handleModelLoaded); // Prevent duplicates
-        modelEl.removeEventListener("model-error", handleModelError);
-
-        modelEl.addEventListener("model-loaded", handleModelLoaded);
-        modelEl.addEventListener("model-error", handleModelError);
-        console.log(`[MODEL_LISTENERS_SETUP] Listeners attached to ${modelId}`);
+        return true;
       } else {
         console.warn(
-          `[MODEL_LISTENERS_SETUP] Model element ${modelId} not found for global listeners.`
+          `%c[MARKER_CHECK] FAIL: AR.js 'marker' component NOT present on ${markerId} (or no data).`,
+          "color: orange; font-weight: bold;"
         );
       }
-    });
+    } else {
+      console.error(
+        `[MARKER_CHECK] ERROR: Marker element ${markerId} not found in DOM.`
+      );
+    }
+    return false;
   }
 
-  function handleModelLoaded(event) {
-    const modelEl = event.target;
+  function setupModelAndMarkerListeners() {
     console.log(
-      `%c[MODEL_EVENT] SUCCESS: ${modelEl.id} 3D model loaded.`,
-      "color: green; font-weight: bold;"
+      "[LISTENERS_SETUP] Attempting to setup model and AR.js marker event listeners."
     );
-    // Model is initially invisible, made visible by markerhandler
+
+    const markers = {
+      "marker-bird": document.getElementById("marker-bird"),
+      "marker-dino": document.getElementById("marker-dino"),
+    };
+
+    const models = {
+      "model-bird": document.getElementById("model-bird"),
+      "model-dino": document.getElementById("model-dino"),
+    };
+
+    let allMarkersReady = true;
+    for (const markerId in markers) {
+      if (!checkMarkerComponent(markerId)) {
+        // Check if AR.js marker component is active
+        allMarkersReady = false;
+      }
+      const markerEl = markers[markerId];
+      if (markerEl) {
+        markerEl.addEventListener("markerFound", () => {
+          console.log(
+            `%c[AR_EVENT] MARKER FOUND: ${markerEl.id}`,
+            "color: blue; font-weight: bold;"
+          );
+          const modelEl = models[markerEl.id.replace("marker-", "model-")];
+          if (modelEl) {
+            const scale = modelEl.getAttribute("scale");
+            const position = modelEl.getAttribute("position");
+            const rotation = modelEl.getAttribute("rotation");
+            console.log(
+              `[AR_EVENT_DETAIL] Model for ${markerEl.id}: ${
+                modelEl.id
+              }, visible: ${modelEl.getAttribute("visible")}`
+            );
+            console.log(
+              `[AR_EVENT_DETAIL]   Scale: x=${scale.x}, y=${scale.y}, z=${scale.z}`
+            );
+            console.log(
+              `[AR_EVENT_DETAIL]   Position: x=${position.x}, y=${position.y}, z=${position.z}`
+            );
+            console.log(
+              `[AR_EVENT_DETAIL]   Rotation: x=${rotation.x}, y=${rotation.y}, z=${rotation.z}`
+            );
+            modelEl.setAttribute("visible", "true"); // Force visible on found
+          }
+        });
+        markerEl.addEventListener("markerLost", () => {
+          console.log(
+            `%c[AR_EVENT] MARKER LOST: ${markerEl.id}`,
+            "color: orange;"
+          );
+        });
+        console.log(
+          `[LISTENERS_SETUP] Event listeners for marker ${markerEl.id} attached.`
+        );
+      } else {
+        console.error(
+          `[LISTENERS_SETUP] Marker element ${markerId} not found.`
+        );
+      }
+    }
+
+    if (!allMarkersReady) {
+      console.warn(
+        "[LISTENERS_SETUP] Not all AR.js marker components seem to be active. Marker detection might fail."
+      );
+    }
+
+    for (const modelId in models) {
+      const modelEl = models[modelId];
+      if (modelEl) {
+        modelEl.addEventListener("model-loaded", (event) => {
+          console.log(
+            `%c[MODEL_EVENT] SUCCESS: ${modelId} 3D model loaded.`,
+            "color: green; font-weight: bold;",
+            "Detail:",
+            event.detail.model
+          );
+          const scale = modelEl.getAttribute("scale");
+          const position = modelEl.getAttribute("position");
+          const rotation = modelEl.getAttribute("rotation");
+          console.log(`[MODEL_EVENT_DETAIL] ${modelId} Initial Attributes:`);
+          console.log(
+            `[MODEL_EVENT_DETAIL]   Scale: x=${scale.x}, y=${scale.y}, z=${scale.z}`
+          );
+          console.log(
+            `[MODEL_EVENT_DETAIL]   Position: x=${position.x}, y=${position.y}, z=${position.z}`
+          );
+          console.log(
+            `[MODEL_EVENT_DETAIL]   Rotation: x=${rotation.x}, y=${rotation.y}, z=${rotation.z}`
+          );
+        });
+        modelEl.addEventListener("model-error", (event) => {
+          console.error(
+            `%c[MODEL_EVENT] ERROR: ${modelId} 3D model failed to load.`,
+            "color: red; font-weight: bold;",
+            "Src:",
+            event.detail.src
+          );
+        });
+        console.log(
+          `[LISTENERS_SETUP] Event listeners for model ${modelId} attached.`
+        );
+      } else {
+        console.error(`[LISTENERS_SETUP] Model element ${modelId} not found.`);
+      }
+    }
+    console.log(
+      "[LISTENERS_SETUP] Finished setting up model and AR.js marker event listeners."
+    );
   }
 
-  function handleModelError(event) {
-    const modelEl = event.target;
-    console.error(
-      `%c[MODEL_EVENT] ERROR: ${modelEl.id} 3D model failed to load.`,
-      "color: red; font-weight: bold;",
-      "Src:",
-      event.detail.src
-    );
-  }
-
-  // --- Passcode Flow ---
   enterButton.addEventListener("click", () => {
     console.log("[PASSCODE_FLOW] Enter AR button clicked.");
     const enteredPasscode = passcode_input.value.trim().toLowerCase();
@@ -136,10 +162,8 @@ document.addEventListener("DOMContentLoaded", () => {
       landingPage.classList.add("hidden");
       loader.style.display = "flex";
       loader.classList.remove("hidden");
-      if (viewfinder) viewfinder.style.display = "none";
 
       setTimeout(() => {
-        // Give a moment for CSS transitions
         arContainer.style.display = "block";
         console.log("[PASSCODE_FLOW] AR container display set to block.");
 
@@ -148,87 +172,79 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error(
             "[PASSCODE_FLOW_ERROR] AR Scene element (ar-scene) not found!"
           );
-          loader.classList.add("hidden");
-          setTimeout(() => (loader.style.display = "none"), 500);
           return;
         }
 
         console.log(
-          "[PASSCODE_FLOW] Waiting for A-Frame scene to be ready and AR.js to initialize..."
+          '[PASSCODE_FLOW] Waiting for A-Frame scene "loaded" and AR.js "arjs-video-loaded" events...'
         );
 
-        // Check if main AR.js system component is on the scene
-        // This check should happen after scene is in DOM and A-Frame starts processing
-        function checkARSystemReady() {
-          if (arSceneEl.components && arSceneEl.components.arjs) {
+        let sceneLoaded = false;
+        let arVideoLoaded = false;
+
+        function tryInitMainLogic() {
+          if (sceneLoaded && arVideoLoaded) {
             console.log(
-              "%c[AR_SYSTEM_CHECK] SUCCESS: AR.js system component IS PRESENT on a-scene.",
-              "color: green; font-weight: bold;"
+              "%c[SYSTEM_READY] Both A-Frame scene AND AR.js video are loaded. Initializing main listeners.",
+              "background: #222; color: #bada55; font-weight: bold"
             );
-            // Setup global model listeners once AR system seems to be on scene
-            setupGlobalModelListeners();
-            if (viewfinder) viewfinder.style.display = "flex"; // Show viewfinder
-            loader.classList.add("hidden");
-            setTimeout(() => (loader.style.display = "none"), 500);
-          } else {
-            console.warn(
-              "%c[AR_SYSTEM_CHECK] PENDING: AR.js system component NOT YET present on a-scene. Retrying...",
-              "color: orange;"
-            );
-            setTimeout(checkARSystemReady, 1000); // Retry after 1 second
+            setupModelAndMarkerListeners(); // This now includes the checkMarkerComponent
           }
         }
 
         if (arSceneEl.hasLoaded) {
           console.log(
-            "[PASSCODE_FLOW_INFO] A-Frame scene.hasLoaded is already true. Starting AR system check."
+            "[PASSCODE_FLOW_INFO] A-Frame scene.hasLoaded is already true."
           );
-          checkARSystemReady();
+          sceneLoaded = true;
+          tryInitMainLogic();
         } else {
           arSceneEl.addEventListener(
             "loaded",
             () => {
               console.log(
-                '%c[SCENE_EVENT] A-Frame scene "loaded" event fired. Starting AR system check.',
+                '%c[SCENE_EVENT] A-Frame scene "loaded" event fired.',
                 "color: blue; font-weight: bold;"
               );
-              checkARSystemReady();
+              sceneLoaded = true;
+              tryInitMainLogic();
             },
             { once: true }
           );
         }
 
-        // Fallback loader hide, in case checks take too long or fail
+        // Listen for AR.js specific event indicating video is ready
+        arSceneEl.addEventListener(
+          "arjs-video-loaded",
+          () => {
+            console.log(
+              '%c[ARJS_EVENT] AR.js "arjs-video-loaded" event fired. Video stream should be active.',
+              "color: purple; font-weight: bold;"
+            );
+            arVideoLoaded = true;
+            tryInitMainLogic();
+          },
+          { once: true }
+        );
+
+        // Fallback timeout for loader (in case events don't fire as expected, though they should)
         setTimeout(() => {
-          if (!loader.classList.contains("hidden")) {
-            console.log("[LOADER_TIMEOUT_FALLBACK] Hiding loader.");
-            loader.classList.add("hidden");
-            setTimeout(() => (loader.style.display = "none"), 500);
-            if (
-              viewfinder &&
-              viewfinder.style.display === "none" &&
-              arContainer.style.display === "block"
-            ) {
-              // If loader was hidden by fallback but AR container is visible, show viewfinder
-              console.log("[LOADER_TIMEOUT_FALLBACK] Showing viewfinder.");
-              viewfinder.style.display = "flex";
-            }
-          }
-        }, 10000); // 10 second overall timeout for loader
+          loader.classList.add("hidden");
+          setTimeout(() => (loader.style.display = "none"), 500);
+        }, 5000); // Increased timeout slightly
       }, 500);
     } else {
       errorMessage.textContent = 'Invalid animal name. Try "bird" or "dino".';
-      // ... (shake animation for input)
       passcode_input.style.animation = "shake 0.5s ease";
       setTimeout(() => (passcode_input.style.animation = ""), 500);
     }
   });
 
-  // ... (passcode_input keypress and shake animation CSS) ...
   passcode_input.addEventListener("keypress", (event) => {
     if (event.key === "Enter") enterButton.click();
   });
 
+  // Shake animation CSS (ensure it's present)
   if (document.styleSheets.length > 0 && document.styleSheets[0].cssRules) {
     if (
       ![...document.styleSheets[0].cssRules].some(

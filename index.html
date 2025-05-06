@@ -1,80 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Simple Animal AR</title>
-    <!-- A-Frame 1.5.0 -->
+    <!-- 1. A-Frame Core FIRST -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- AR.js from AR-js-org/AR.js master branch -->
+    <!-- 2. AR.js for A-Frame IMMEDIATELY AFTER -->
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-
-    <link rel="stylesheet" href="style.css">
-</head>
-<body style='margin : 0px; overflow: hidden;'>
-
+    <!-- 3. Your main CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body style="margin: 0px; overflow: hidden">
     <div id="landing-page">
-        <div class="popup">
-            <h1>Animal AR Experience</h1>
-            <p>Enter the name of an animal to unlock:</p>
-            <input type="text" id="passcode-input" placeholder="e.g., bird or dino">
-            <button id="enter-button">Enter AR</button>
-            <p id="error-message" class="error"></p>
-        </div>
+      <div class="popup">
+        <h1>Animal AR Experience</h1>
+        <p>Enter the name of an animal to unlock:</p>
+        <input
+          type="text"
+          id="passcode-input"
+          placeholder="e.g., bird or dino"
+        />
+        <button id="enter-button">Enter AR</button>
+        <p id="error-message" class="error"></p>
+      </div>
     </div>
 
-    <div id="loader" class="loader-wrapper" style="display: none;">
-        <div class="loader"></div>
-        <p>Loading AR...</p>
+    <div id="loader" class="loader-wrapper" style="display: none">
+      <div class="loader"></div>
+      <p>Loading AR...</p>
     </div>
 
-    <div id="viewfinder" style="display: none;">
-        <div class="viewfinder-box"></div>
-        <p class="viewfinder-text">Align QR Code Here</p>
-    </div>
-
-    <div id="ar-container" style="display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0;">
-        <a-scene
-            id="ar-scene"
-            embedded
-            arjs='sourceType: webcam; debugUIEnabled: true; videoTexture: true;'
-            renderer='antialias: true; alpha: true; logarithmicDepthBuffer: true;' 
-            <!-- Added logarithmicDepthBuffer back, sometimes helpful with AR.js -->
+    <div
+      id="ar-container"
+      style="
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      "
+    >
+      <a-scene
+        id="ar-scene"
+        embedded
+        arjs="sourceType: webcam; debugUIEnabled: true;"
+        <!--
+        Keep
+        AR.js
+        properties
+        simple
+        --
+      >
         >
 
-            <a-marker id="marker-bird" type='pattern' url='markers/marker_bird.patt'
-                markerhandler <!-- We'll add this component to manage AR.js events directly on the marker -->
-            >
-                <a-entity
-                    id="model-bird"
-                    gltf-model="url(assets/bird.glb)"
-                    scale="0.03 0.03 0.03"
-                    position="0 0.5 0"
-                    rotation="-90 0 0"
-                    visible="false" <!-- Start invisible -->
-                    animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear">
-                </a-entity>
-            </a-marker>
+        <!-- Bird Marker -->
+        <a-marker
+          id="marker-bird"
+          type="pattern"
+          url="markers/marker_bird.patt"
+        >
+          <a-entity
+            id="model-bird"
+            gltf-model="url(assets/bird.glb)"
+            scale="0.03 0.03 0.03"
+            position="0 0.5 0"
+            rotation="-90 0 0"
+            animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"
+          >
+          </a-entity>
+        </a-marker>
 
-            <a-marker id="marker-dino" type='pattern' url='markers/marker_dino.patt'
-                markerhandler
-            >
-                <a-entity
-                    id="model-dino"
-                    gltf-model="url(assets/dino.glb)"
-                    scale="1 1 1"
-                    position="0 0.2 0"
-                    rotation="0 0 0"
-                    visible="false" <!-- Start invisible -->
-                    animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
-                    animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear">
-                </a-entity>
-            </a-marker>
+        <!-- Dino Marker -->
+        <a-marker
+          id="marker-dino"
+          type="pattern"
+          url="markers/marker_dino.patt"
+        >
+          <a-entity
+            id="model-dino"
+            gltf-model="url(assets/dino.glb)"
+            scale="1 1 1"
+            position="0 0.2 0"
+            rotation="0 0 0"
+            visible="true"
+            animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
+            animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
+          >
+          </a-entity>
+        </a-marker>
 
-            <a-entity camera></a-entity>
-        </a-scene>
+        <a-entity camera></a-entity>
+      </a-scene>
     </div>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
