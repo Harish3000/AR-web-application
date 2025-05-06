@@ -183,27 +183,48 @@ body {
   }
 }
 
-/* Add these styles to your existing style.css */
-
-.mindar-ui {
-  /* Common class for MindAR UI overlays */
+/* Viewfinder Styles */
+#viewfinder {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  display: flex; /* Will be controlled by JS */
+  display: none; /* Initially hidden, shown by JS */
   justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 200; /* Above AR content but below landing page if needed */
+  z-index: 50; /* Below popups/loaders, above AR content if needed, but usually just for guidance */
+  pointer-events: none; /* Allow clicks to pass through to AR scene */
+}
+
+.viewfinder-box {
+  width: 200px; /* Adjust size as needed */
+  height: 200px; /* Adjust size as needed */
+  border: 3px dashed rgba(255, 255, 255, 0.7);
+  background-color: rgba(0, 0, 0, 0.1); /* Slight dimming inside */
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.viewfinder-text {
+  position: absolute;
+  bottom: 15%; /* Position below the box */
   color: white;
-  font-size: 1.5em;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.9em;
   text-align: center;
 }
 
-.scanning-overlay p {
-  background-color: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  border-radius: 10px;
+/* Responsive viewfinder box */
+@media (max-width: 600px) {
+  .viewfinder-box {
+    width: 150px;
+    height: 150px;
+  }
+  .viewfinder-text {
+    font-size: 0.8em;
+    bottom: 10%;
+  }
 }

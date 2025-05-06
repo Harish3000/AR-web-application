@@ -6,11 +6,11 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Simple Animal AR with MindAR</title>
-    <!-- 1. A-Frame Core (Recent) -->
+    <title>Simple Animal AR</title>
+    <!-- A-Frame 1.5.0 -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- 2. MindAR A-Frame (Image Tracking) -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <!-- AR.js from Nicolo Carpignoli's fork - often more stable with recent A-Frame -->
+    <script src="https://cdn.jsdelivr.net/gh/nicolocarpignoli/AR.js@3.4.0-nft-fork/aframe/build/aframe-ar.js"></script>
 
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -34,6 +34,12 @@
       <p>Loading AR...</p>
     </div>
 
+    <!-- Viewfinder Box -->
+    <div id="viewfinder" style="display: none">
+      <div class="viewfinder-box"></div>
+      <p class="viewfinder-text">Align QR Code Here</p>
+    </div>
+
     <div
       id="ar-container"
       style="
@@ -46,84 +52,55 @@
       "
     >
       <!--
-            MindAR Scene Setup:
-            - mindar-image="imageTargetSrc: assets/targets.mind;"
-            - The .mind file is a compiled target file generated from your marker images.
-            - color-space, renderer, vr-mode-ui, device-orientation-permission-ui are common settings.
+            sourceType: webcam - Essential
+            debugUIEnabled: true - Keep for debugging
+            detectionMode & matrixCodeType: Let's use AR.js defaults for pattern first,
+            then add them back if needed. These are typically for 'barcode' or specific matrix markers.
+            For 'pattern' type, AR.js should handle it.
         -->
       <a-scene
         id="ar-scene"
-        mindar-image="imageTargetSrc: assets/targets.mind; autoStart: false; uiScanning: #scanningUI; uiLoading: #loadingUI;"
-        color-space="sRGB"
-        renderer="colorManagement: true, physicallyCorrectLights"
-        vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false"
         embedded
+        arjs="sourceType: webcam; debugUIEnabled: true; videoTexture: true;"
+        renderer="antialias: true; alpha: true"
       >
-        <!-- Camera - MindAR handles the AR camera setup internally -->
-        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-
-        <!--
-                MindAR Target Entities:
-                - mindar-image-target="targetIndex: 0" (for the first image in targets.mind)
-                - The content (model) goes inside this target entity.
-            -->
-        <a-entity id="target-dino" mindar-image-target="targetIndex: 0">
-          <!-- Assuming dino is the first target -->
-          <a-entity
-            id="model-dino"
-            gltf-model="url(assets/dino.glb)"
-            scale="0.3 0.3 0.3"
-            <!--
-            Adjust
-            as
-            needed
-            for
-            MindAR
-            scale
-            --
-          >
-            position="0 0 0" rotation="0 0 0" animation__pos="property:
-            position; to: 0 0.1 0; dir: alternate; loop: true; dur: 2000;
-            easing: easeInOutSine" animation__rot="property: rotation; to: 0 360
-            0; loop: true; dur: 15000; easing: linear" visible="false">
-            <!-- Initially hidden, shown on target found -->
-          </a-entity>
-        </a-entity>
-
-        <a-entity id="target-bird" mindar-image-target="targetIndex: 1">
-          <!-- Assuming bird is the second target -->
+        <a-marker
+          id="marker-bird"
+          type="pattern"
+          url="markers/marker_bird.patt"
+        >
           <a-entity
             id="model-bird"
             gltf-model="url(assets/bird.glb)"
-            scale="0.01 0.01 0.01"
-            <!--
-            Adjust
-            as
-            needed
-            for
-            MindAR
-            scale
-            --
+            scale="0.03 0.03 0.03"
+            position="0 0.5 0"
+            rotation="-90 0 0"
+            animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"
           >
-            position="0 0 0" rotation="0 0 0" animation="property: rotation; to:
-            0 360 0; loop: true; dur: 10000; easing: linear" visible="false">
-            <!-- Initially hidden, shown on target found -->
           </a-entity>
-        </a-entity>
-      </a-scene>
+        </a-marker>
 
-      <!-- Optional MindAR UI Elements -->
-      <div id="scanningUI" class="mindar-ui" style="display: none">
-        <div class="scanning-overlay">
-          <p>Scan Marker</p>
-        </div>
-      </div>
-      <div id="loadingUI" class="mindar-ui" style="display: none">
-        <div class="scanning-overlay">
-          <p>Loading AR Engine...</p>
-        </div>
-      </div>
+        <a-marker
+          id="marker-dino"
+          type="pattern"
+          url="markers/marker_dino.patt"
+        >
+          <a-entity
+            id="model-dino"
+            gltf-model="url(assets/dino.glb)"
+            scale="1 1 1"
+            position="0 0.2 0"
+            rotation="0 0 0"
+            visible="true"
+            animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
+            animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
+          >
+          </a-entity>
+        </a-marker>
+
+        <a-entity camera></a-entity>
+        <!-- Standard A-Frame camera -->
+      </a-scene>
     </div>
 
     <script src="script.js"></script>
