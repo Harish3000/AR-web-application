@@ -6,20 +6,15 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <title>Simple Animal AR</title>
-    <!-- OLDER STABLE A-FRAME -->
-    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
-    <!-- AR.JS for A-Frame 1.3.0 (from a more stable CDN if possible, or a specific commit) -->
-    <!-- Let's try the version often used with 1.3.0, though CDN links can change -->
-    <!-- Alternative AR.js link (check compatibility, this one is older but might be more stable with A-Frame 1.3.0) -->
-    <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js@1.7.7/aframe/build/aframe-ar.js"></script>
-    <!-- OR if the above doesn't work, try a slightly different one sometimes cited for stability:
-    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.7.2/aframe/build/aframe-ar.js"></script>
-    -->
+    <title>Simple Animal AR with MindAR</title>
+    <!-- 1. A-Frame Core (Recent) -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- 2. MindAR A-Frame (Image Tracking) -->
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
     <link rel="stylesheet" href="style.css" />
   </head>
   <body style="margin: 0px; overflow: hidden">
-    <!-- ... rest of your HTML (landing page, loader) ... -->
     <div id="landing-page">
       <div class="popup">
         <h1>Animal AR Experience</h1>
@@ -50,62 +45,87 @@
         left: 0;
       "
     >
-      <!-- NOTE: Some arjs parameters might change syntax or availability with older AR.js versions -->
-      <!-- Let's start very simple for AR.js on the scene -->
+      <!--
+            MindAR Scene Setup:
+            - mindar-image="imageTargetSrc: assets/targets.mind;"
+            - The .mind file is a compiled target file generated from your marker images.
+            - color-space, renderer, vr-mode-ui, device-orientation-permission-ui are common settings.
+        -->
       <a-scene
         id="ar-scene"
+        mindar-image="imageTargetSrc: assets/targets.mind; autoStart: false; uiScanning: #scanningUI; uiLoading: #loadingUI;"
+        color-space="sRGB"
+        renderer="colorManagement: true, physicallyCorrectLights"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false"
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: true;"
-        renderer="logarithmicDepthBuffer: true;"
-        <!--
-        Often
-        recommended
-        with
-        older
-        AR.js
-        --
       >
-        >
-        <!-- Removed trackingMethod etc. for now -->
+        <!-- Camera - MindAR handles the AR camera setup internally -->
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-marker
-          id="marker-bird"
-          type="pattern"
-          url="markers/marker_bird.patt"
-        >
-          <a-entity
-            id="model-bird"
-            gltf-model="url(assets/bird.glb)"
-            scale="0.03 0.03 0.03"
-            position="0 0.5 0"
-            rotation="-90 0 0"
-            animation="property: rotation; to: -90 360 0; loop: true; dur: 10000; easing: linear"
-          >
-          </a-entity>
-        </a-marker>
-
-        <a-marker
-          id="marker-dino"
-          type="pattern"
-          url="markers/marker_dino.patt"
-        >
+        <!--
+                MindAR Target Entities:
+                - mindar-image-target="targetIndex: 0" (for the first image in targets.mind)
+                - The content (model) goes inside this target entity.
+            -->
+        <a-entity id="target-dino" mindar-image-target="targetIndex: 0">
+          <!-- Assuming dino is the first target -->
           <a-entity
             id="model-dino"
             gltf-model="url(assets/dino.glb)"
-            scale="1 1 1"
-            position="0 0.2 0"
-            rotation="0 0 0"
-            visible="true"
-            animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
-            animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
+            scale="0.3 0.3 0.3"
+            <!--
+            Adjust
+            as
+            needed
+            for
+            MindAR
+            scale
+            --
           >
+            position="0 0 0" rotation="0 0 0" animation__pos="property:
+            position; to: 0 0.1 0; dir: alternate; loop: true; dur: 2000;
+            easing: easeInOutSine" animation__rot="property: rotation; to: 0 360
+            0; loop: true; dur: 15000; easing: linear" visible="false">
+            <!-- Initially hidden, shown on target found -->
           </a-entity>
-        </a-marker>
+        </a-entity>
 
-        <!-- Use a-camera instead of a-entity camera for older AR.js compatibility -->
-        <a-camera gps-camera rotation-reader> </a-camera>
+        <a-entity id="target-bird" mindar-image-target="targetIndex: 1">
+          <!-- Assuming bird is the second target -->
+          <a-entity
+            id="model-bird"
+            gltf-model="url(assets/bird.glb)"
+            scale="0.01 0.01 0.01"
+            <!--
+            Adjust
+            as
+            needed
+            for
+            MindAR
+            scale
+            --
+          >
+            position="0 0 0" rotation="0 0 0" animation="property: rotation; to:
+            0 360 0; loop: true; dur: 10000; easing: linear" visible="false">
+            <!-- Initially hidden, shown on target found -->
+          </a-entity>
+        </a-entity>
       </a-scene>
+
+      <!-- Optional MindAR UI Elements -->
+      <div id="scanningUI" class="mindar-ui" style="display: none">
+        <div class="scanning-overlay">
+          <p>Scan Marker</p>
+        </div>
+      </div>
+      <div id="loadingUI" class="mindar-ui" style="display: none">
+        <div class="scanning-overlay">
+          <p>Loading AR Engine...</p>
+        </div>
+      </div>
     </div>
+
     <script src="script.js"></script>
   </body>
 </html>
