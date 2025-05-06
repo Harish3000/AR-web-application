@@ -1,9 +1,9 @@
 /* Basic Reset & Body */
 body {
   margin: 0;
-  font-family: sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Nicer font */
   overflow: hidden; /* Prevent scrolling */
-  background-color: #f0f0f0; /* Fallback background */
+  background-color: #2c3e50; /* Darker background for AR view */
 }
 
 /* Landing Page Styles */
@@ -13,93 +13,123 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7); /* Dark overlay */
+  background: rgba(0, 0, 0, 0.8); /* Darker overlay */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 100;
+  z-index: 1000; /* Highest z-index */
   opacity: 1;
   transition: opacity 0.5s ease-out;
 }
 
 #landing-page.hidden {
   opacity: 0;
-  pointer-events: none; /* Prevent interaction when hidden */
+  pointer-events: none;
 }
 
 .popup {
-  background: linear-gradient(135deg, #6e8efb, #a777e3); /* Nice gradient */
-  padding: 30px 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(145deg, #5c6bc0, #3f51b5); /* Indigo gradient */
+  padding: 35px 45px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
   text-align: center;
   color: white;
   max-width: 90%;
-  width: 400px; /* Max width for the popup */
+  width: 420px;
   transform: scale(0.9);
-  animation: popup-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: popup-appear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes popup-appear {
   from {
-    transform: scale(0.8);
+    transform: scale(0.7) translateY(20px);
     opacity: 0;
   }
   to {
-    transform: scale(1);
+    transform: scale(1) translateY(0);
     opacity: 1;
   }
 }
 
 .popup h1 {
   margin-top: 0;
-  margin-bottom: 15px;
-  font-size: 1.8em;
+  margin-bottom: 20px;
+  font-size: 2em;
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 
 .popup p {
-  margin-bottom: 20px;
-  font-size: 1em;
+  margin-bottom: 25px;
+  font-size: 1.1em;
+  line-height: 1.6;
 }
 
+.popup input[type="password"],
 .popup input[type="text"] {
-  width: calc(100% - 22px); /* Full width minus padding */
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 1em;
-  box-sizing: border-box; /* Include padding in width */
+  /* Added password type styling */
+  width: calc(100% - 24px);
+  padding: 12px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 1.1em;
+  color: white;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.popup input[type="password"]::placeholder,
+.popup input[type="text"]::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.popup input[type="password"]:focus,
+.popup input[type="text"]:focus {
+  border-color: #82b1ff;
+  background-color: rgba(255, 255, 255, 0.2);
+  outline: none;
 }
 
 .popup button {
-  background-color: #ffffff;
-  color: #6e8efb;
+  background-color: #82b1ff; /* Light blue accent */
+  color: #303f9f; /* Darker indigo text */
   border: none;
-  padding: 12px 25px;
-  border-radius: 25px;
-  font-size: 1.1em;
+  padding: 14px 30px;
+  border-radius: 30px;
+  font-size: 1.2em;
   font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, transform 0.2s ease,
+    box-shadow 0.3s ease;
+  box-shadow: 0 5px 15px rgba(130, 177, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .popup button:hover {
-  background-color: #f0f0f0;
-  transform: translateY(-2px);
+  background-color: #a6caff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(130, 177, 255, 0.4);
 }
 
 .popup button:active {
   transform: translateY(0px);
+  box-shadow: 0 5px 15px rgba(130, 177, 255, 0.3);
 }
 
 .error {
-  color: #ffdddd;
+  color: #ff8a80; /* Light red for error */
   font-weight: bold;
   margin-top: 15px;
-  height: 1.2em; /* Reserve space to prevent layout jump */
+  height: 1.2em;
   font-size: 0.9em;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.error.show {
+  opacity: 1;
 }
 
 /* Loading Spinner Styles */
@@ -109,34 +139,35 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.9); /* Light overlay */
+  background-color: rgba(44, 62, 80, 0.95); /* Dark overlay for loader */
   display: flex;
-  flex-direction: column; /* Stack spinner and text vertically */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  z-index: 99; /* Below landing page, above AR content */
+  z-index: 999;
   opacity: 1;
   transition: opacity 0.5s ease-out;
 }
 
 .loader-wrapper.hidden {
   opacity: 0;
-  pointer-events: none; /* Prevent interaction when hidden */
+  pointer-events: none;
 }
 
 .loader {
-  border: 8px solid #f3f3f3; /* Light grey */
-  border-top: 8px solid #6e8efb; /* Blue */
+  border: 8px solid #757575; /* Medium grey */
+  border-top: 8px solid #82b1ff; /* Light blue accent */
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1.5s linear infinite;
-  margin-bottom: 20px; /* Space between spinner and text */
+  width: 70px;
+  height: 70px;
+  animation: spin 1.2s linear infinite;
+  margin-bottom: 25px;
 }
 
 .loader-wrapper p {
-  font-size: 1.2em;
-  color: #333;
+  font-size: 1.4em;
+  color: #ecf0f1; /* Light grey text */
+  letter-spacing: 1px;
 }
 
 @keyframes spin {
@@ -150,81 +181,145 @@ body {
 
 /* AR Container - Ensure it takes full space */
 #ar-container {
-  /* Styles set inline for simplicity, but ensure these are applied */
   width: 100%;
   height: 100%;
   position: absolute;
   top: 0;
   left: 0;
+}
+
+/* AR Feedback UI Styles */
+.ar-feedback-ui {
+  position: absolute;
+  bottom: 30px; /* Position at the bottom */
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 15px 25px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 12px;
+  z-index: 10; /* Above AR scene, below other popups if any */
+  text-align: center;
+  font-size: 1.1em;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
+  display: flex; /* For aligning content */
+  align-items: center;
+}
+
+.ar-feedback-ui.show {
+  opacity: 1;
+}
+.ar-feedback-ui.success {
+  background-color: rgba(76, 175, 80, 0.8); /* Green for success */
+}
+.ar-feedback-ui.error-feedback {
+  /* In case you want an error state */
+  background-color: rgba(244, 67, 54, 0.8); /* Red for error */
+}
+
+.feedback-content {
+  display: flex;
+  align-items: center;
+}
+
+.feedback-content p {
+  margin: 0;
+  margin-left: 15px; /* Space between animation and text */
+}
+
+/* Scan Animation */
+.scan-animation {
+  width: 30px;
+  height: 30px;
+  position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+  overflow: hidden; /* Important for scan line */
+}
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px; /* Thickness of the scan line */
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #82b1ff,
+    transparent
+  ); /* Blueish glow */
+  box-shadow: 0 0 5px #82b1ff, 0 0 10px #82b1ff;
+  animation: scan-anim 2s infinite linear;
+  opacity: 0.8;
+}
+
+@keyframes scan-anim {
+  0% {
+    transform: translateY(-5px); /* Start above */
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(0px);
+    opacity: 0.8;
+  }
+  80% {
+    transform: translateY(
+      27px
+    ); /* Move to bottom (height of box - line height) */
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(32px); /* Move past bottom */
+    opacity: 0;
+  }
 }
 
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .popup {
-    padding: 20px 25px;
-    width: 85%; /* Use more screen width on smaller devices */
+    padding: 25px 30px;
+    width: 88%;
   }
-
   .popup h1 {
-    font-size: 1.5em;
+    font-size: 1.7em;
   }
-
   .popup p {
-    font-size: 0.9em;
-  }
-
-  .popup input[type="text"] {
-    font-size: 0.9em;
-  }
-
-  .popup button {
-    padding: 10px 20px;
     font-size: 1em;
   }
-}
-
-/* Viewfinder Styles */
-#viewfinder {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: none; /* Initially hidden, shown by JS */
-  justify-content: center;
-  align-items: center;
-  z-index: 50; /* Below popups/loaders, above AR content if needed, but usually just for guidance */
-  pointer-events: none; /* Allow clicks to pass through to AR scene */
-}
-
-.viewfinder-box {
-  width: 200px; /* Adjust size as needed */
-  height: 200px; /* Adjust size as needed */
-  border: 3px dashed rgba(255, 255, 255, 0.7);
-  background-color: rgba(0, 0, 0, 0.1); /* Slight dimming inside */
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-}
-
-.viewfinder-text {
-  position: absolute;
-  bottom: 15%; /* Position below the box */
-  color: white;
-  background-color: rgba(0, 0, 0, 0.5);
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 0.9em;
-  text-align: center;
-}
-
-/* Responsive viewfinder box */
-@media (max-width: 600px) {
-  .viewfinder-box {
-    width: 150px;
-    height: 150px;
+  .popup input[type="password"],
+  .popup input[type="text"] {
+    font-size: 1em;
   }
-  .viewfinder-text {
-    font-size: 0.8em;
-    bottom: 10%;
+  .popup button {
+    padding: 12px 25px;
+    font-size: 1.1em;
+  }
+
+  .ar-feedback-ui {
+    width: 80%;
+    font-size: 1em;
+    bottom: 20px;
+    padding: 12px 20px;
+  }
+  .feedback-content p {
+    margin-left: 10px;
+  }
+  .scan-animation {
+    width: 25px;
+    height: 25px;
+  }
+  @keyframes scan-anim {
+    /* Adjust scan line for smaller box */
+    80% {
+      transform: translateY(22px);
+      opacity: 0.8;
+    }
+    100% {
+      transform: translateY(27px);
+      opacity: 0;
+    }
   }
 }

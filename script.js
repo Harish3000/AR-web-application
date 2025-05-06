@@ -8,10 +8,28 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorMessage = document.getElementById("error-message");
   const loader = document.getElementById("loader");
   const arContainer = document.getElementById("ar-container");
+  const arFeedbackUI = document.getElementById("ar-feedback"); // Get feedback UI element
+  const feedbackText = document.getElementById("feedback-text"); // Get feedback text element
   let arSceneEl = null;
 
-  const validAnimals = ["bird", "dino"];
-  console.log("Valid animals:", validAnimals);
+  const secretPassword = "Harish"; // Hardcoded password
+  console.log("Password hint (for testing):", secretPassword);
+
+  function showArFeedback(message, type = "scanning") {
+    if (!arFeedbackUI || !feedbackText) return;
+    feedbackText.textContent = message;
+    arFeedbackUI.className = "ar-feedback-ui show"; // Reset classes then add show
+    if (type === "success") {
+      arFeedbackUI.classList.add("success");
+    }
+    // arFeedbackUI.style.display = 'flex'; // Ensure it's flex for alignment
+  }
+
+  function hideArFeedback() {
+    if (!arFeedbackUI) return;
+    arFeedbackUI.classList.remove("show");
+    // setTimeout(() => { arFeedbackUI.style.display = 'none'; }, 500); // Hide after transition
+  }
 
   function checkMarkerComponent(markerId) {
     const markerEl = document.getElementById(markerId);
@@ -41,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log(
       "[LISTENERS_SETUP] Attempting to setup model and AR.js marker event listeners."
     );
+    showArFeedback("Scanning for markers..."); // Show initial scanning message
 
     const markers = {
       "marker-bird": document.getElementById("marker-bird"),
@@ -55,16 +74,23 @@ document.addEventListener("DOMContentLoaded", () => {
     let allMarkersReady = true;
     for (const markerId in markers) {
       if (!checkMarkerComponent(markerId)) {
-        // Check if AR.js marker component is active
         allMarkersReady = false;
       }
       const markerEl = markers[markerId];
       if (markerEl) {
         markerEl.addEventListener("markerFound", () => {
+          const animalDisplayName =
+            markerEl.getAttribute("data-animal-name") ||
+            "a mysterious creature";
           console.log(
-            `%c[AR_EVENT] MARKER FOUND: ${markerEl.id}`,
+            `%c[AR_EVENT] MARKER FOUND: ${markerEl.id} (${animalDisplayName})`,
             "color: blue; font-weight: bold;"
           );
+          showArFeedback(
+            `QR Received! This is a ${animalDisplayName}!`,
+            "success"
+          );
+
           const modelEl = models[markerEl.id.replace("marker-", "model-")];
           if (modelEl) {
             const scale = modelEl.getAttribute("scale");
@@ -84,7 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log(
               `[AR_EVENT_DETAIL]   Rotation: x=${rotation.x}, y=${rotation.y}, z=${rotation.z}`
             );
-            modelEl.setAttribute("visible", "true"); // Force visible on found
+            modelEl.setAttribute("visible", "true");
           }
         });
         markerEl.addEventListener("markerLost", () => {
@@ -92,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
             `%c[AR_EVENT] MARKER LOST: ${markerEl.id}`,
             "color: orange;"
           );
+          showArFeedback("Scanning for markers..."); // Reset to scanning when marker is lost
         });
         console.log(
           `[LISTENERS_SETUP] Event listeners for marker ${markerEl.id} attached.`
@@ -155,10 +182,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   enterButton.addEventListener("click", () => {
     console.log("[PASSCODE_FLOW] Enter AR button clicked.");
-    const enteredPasscode = passcode_input.value.trim().toLowerCase();
+    const enteredPasscode = passcode_input.value; // No trim or toLowerCase for exact match
 
-    if (validAnimals.includes(enteredPasscode)) {
-      console.log("[PASSCODE_FLOW] Access Granted for:", enteredPasscode);
+    // Clear previous error and hide it initially
+    errorMessage.textContent = "";
+    errorMessage.classList.remove("show");
+
+    if (enteredPasscode === secretPassword) {
+      // Check against hardcoded password
+      console.log("[PASSCODE_FLOW] Access Granted!");
       landingPage.classList.add("hidden");
       loader.style.display = "flex";
       loader.classList.remove("hidden");
@@ -188,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
               "%c[SYSTEM_READY] Both A-Frame scene AND AR.js video are loaded. Initializing main listeners.",
               "background: #222; color: #bada55; font-weight: bold"
             );
-            setupModelAndMarkerListeners(); // This now includes the checkMarkerComponent
+            setupModelAndMarkerListeners();
           }
         }
 
@@ -213,7 +245,6 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        // Listen for AR.js specific event indicating video is ready
         arSceneEl.addEventListener(
           "arjs-video-loaded",
           () => {
@@ -227,14 +258,15 @@ document.addEventListener("DOMContentLoaded", () => {
           { once: true }
         );
 
-        // Fallback timeout for loader (in case events don't fire as expected, though they should)
         setTimeout(() => {
           loader.classList.add("hidden");
           setTimeout(() => (loader.style.display = "none"), 500);
-        }, 5000); // Increased timeout slightly
+        }, 5000);
       }, 500);
     } else {
-      errorMessage.textContent = 'Invalid animal name. Try "bird" or "dino".';
+      console.log("[PASSCODE_FLOW_ERROR] Access Denied. Invalid password.");
+      errorMessage.textContent = "Invalid password. Please try again.";
+      errorMessage.classList.add("show"); // Show error with transition
       passcode_input.style.animation = "shake 0.5s ease";
       setTimeout(() => (passcode_input.style.animation = ""), 500);
     }
@@ -244,7 +276,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "Enter") enterButton.click();
   });
 
-  // Shake animation CSS (ensure it's present)
   if (document.styleSheets.length > 0 && document.styleSheets[0].cssRules) {
     if (
       ![...document.styleSheets[0].cssRules].some(
