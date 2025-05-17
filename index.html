@@ -96,15 +96,11 @@
           </a-entity>
         </a-marker>
 
-        <!-- Monkey Marker -->
-        <a-marker
-          id="marker-monkey"
-          type="pattern"
-          url="markers/marker_monkey.patt"
-        >
+        <!-- Pig Marker -->
+        <a-marker id="marker-pig" type="pattern" url="markers/marker_pig.patt">
           <a-entity
-            id="model-monkey"
-            gltf-model="url(assets/real_monkey.glb)"
+            id="model-pig"
+            gltf-model="url(assets/real_pig.glb)"
             scale="1.2 1.2 1.2"
             position="0 0.2 0"
             rotation="0 0 0"
@@ -123,6 +119,24 @@
           <a-entity
             id="model-panda"
             gltf-model="url(assets/real_panda.glb)"
+            scale="0.8 0.8 0.8"
+            position="0 0.2 0"
+            rotation="0 0 0"
+            animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
+            animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
+          >
+          </a-entity>
+        </a-marker>
+
+        <!-- Horse marker -->
+        <a-marker
+          id="marker-horse"
+          type="pattern"
+          url="markers/marker_horse.patt"
+        >
+          <a-entity
+            id="model-horse"
+            gltf-model="url(assets/real_horse.glb)"
             scale="0.8 0.8 0.8"
             position="0 0.2 0"
             rotation="0 0 0"
