@@ -42,13 +42,17 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     const markers = {
-      "marker-bird": document.getElementById("marker-bird"),
-      "marker-dino": document.getElementById("marker-dino"),
+      "marker-elephant": document.getElementById("marker-elephant"),
+      "marker-lion": document.getElementById("marker-lion"),
+      "marker-monkey": document.getElementById("marker-monkey"),
+      "marker-panda": document.getElementById("marker-panda"),
     };
 
     const models = {
-      "model-bird": document.getElementById("model-bird"),
-      "model-dino": document.getElementById("model-dino"),
+      "model-elephant": document.getElementById("model-elephant"),
+      "model-lion": document.getElementById("model-lion"),
+      "model-monkey": document.getElementById("model-monkey"),
+      "model-panda": document.getElementById("model-panda"),
     };
 
     let allMarkersReady = true;
@@ -161,7 +165,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (enteredPasscode === validPassword) {
       console.log("[PASSCODE_FLOW] Access Granted");
-      landingPage.classList.add("hidden");
+
+      passcodeInput.disabled = true; // Disable the input field
+      enterButton.disabled = true; // Disable the button
+      errorMessage.textContent = ""; // Clear any error messages
+
+      landingPage.classList.add("hidden"); // Start fade out
+      // After the opacity transition (0.5s in CSS), set display to none
+      setTimeout(() => {
+        landingPage.style.display = "none";
+      }, 500);
+
       loader.style.display = "flex";
       loader.classList.remove("hidden");
 
@@ -232,8 +246,8 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
           loader.classList.add("hidden");
           setTimeout(() => (loader.style.display = "none"), 500);
-        }, 5000);
-      }, 500);
+        }, 5000); // Keep loader for 5s
+      }, 500); // Delay for landing page transition
     } else {
       errorMessage.textContent = "Invalid password. Try again.";
       passcodeInput.style.animation = "shake 0.5s ease";
@@ -245,10 +259,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.key === "Enter") enterButton.click();
   });
 
+  // Check if shake animation is already defined, if not, insert it.
+  // This is mostly for robustness, as it's defined in style.css
   if (document.styleSheets.length > 0 && document.styleSheets[0].cssRules) {
     if (
       ![...document.styleSheets[0].cssRules].some(
-        (rule) => "name" in rule && rule.name === "shake"
+        (rule) => rule.type === CSSRule.KEYFRAMES_RULE && rule.name === "shake"
       )
     ) {
       try {
@@ -256,13 +272,13 @@ document.addEventListener("DOMContentLoaded", () => {
           `@keyframes shake {0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }}`,
           document.styleSheets[0].cssRules.length
         );
-        console.log("Shake animation CSS rule inserted.");
+        console.log("Shake animation CSS rule inserted via JS.");
       } catch (e) {
-        console.warn("Could not insert shake animation rule:", e);
+        console.warn("Could not insert shake animation rule via JS:", e);
       }
     }
   } else {
-    console.warn("Stylesheet not available for shake animation.");
+    console.warn("Stylesheet not available for shake animation check via JS.");
   }
 
   console.log("Initial script setup complete.");
