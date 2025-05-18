@@ -7,88 +7,72 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorMessage = document.getElementById("error-message");
   const loader = document.getElementById("loader");
   const arContainer = document.getElementById("ar-container");
-  // UI elements for AR will be handled by the scene-controller component
 
   const validPassword = "Harish";
   let arSceneEl = null;
 
-  // Component for individual markers to track their visibility
+  // Flashlight variables
+  let isFlashlightOn = false;
+  let videoTrack = null;
+  const flashlightControlButton = document.getElementById("flashlight-control");
+
+  // --- A-Frame Components (animal-handler, scene-controller) ---
+  // These remain IDENTICAL to your previous working version.
+  // Ensure they are here. I'll put placeholders for brevity.
+
   AFRAME.registerComponent("animal-handler", {
     schema: {
       animalName: { type: "string", default: "Animal" },
-      audioId: { type: "string" }, // ID of the <audio> element in a-assets
+      audioId: { type: "string" },
     },
     init: function () {
       this.isMarkerCurrentlyVisible = false;
-      // console.log(`Animal Handler for ${this.data.animalName} initialized (Marker ID: ${this.el.id}, Audio ID: ${this.data.audioId}).`);
     },
     tick: function () {
-      // Update visibility status based on AR.js internal state
-      if (this.el.object3D.visible) {
-        this.isMarkerCurrentlyVisible = true;
-      } else {
-        this.isMarkerCurrentlyVisible = false;
-      }
+      this.isMarkerCurrentlyVisible = !!(
+        this.el.object3D && this.el.object3D.visible
+      );
     },
   });
 
-  // Component to manage overall scene UI based on marker visibility
-  let currentPlayingAudioElement = null; // Global reference to the <audio> element
+  let currentPlayingAudioElement = null;
 
   AFRAME.registerComponent("scene-controller", {
     init: function () {
       console.log("Scene Controller Initialized.");
-      this.markerHandlers = []; // To store references to animal-handler components
+      this.markerHandlers = [];
       this.uiAudioControl = document.getElementById("audio-control");
       this.uiScanningIndicator = document.getElementById("scanning-indicator");
       this.uiSuccessMessage = document.getElementById("success-message");
       this.uiSuccessText = document.getElementById("success-text");
+      this.currentlyActiveAnimalName = null;
+      this.currentlyActiveAudioId = null;
 
-      this.currentlyActiveAnimalName = null; // Tracks the name of the animal whose UI is active
-      this.currentlyActiveAudioId = null; // Tracks the audioId for the active animal
-
-      // Populate markerHandlers once the scene is loaded
       this.el.sceneEl.addEventListener("loaded", () => {
         const markerElements = Array.from(
           this.el.sceneEl.querySelectorAll("a-marker[animal-handler]")
         );
         this.markerHandlers = markerElements
           .map((mEl) => {
-            if (mEl.components["animal-handler"]) {
-              return mEl.components["animal-handler"];
-            }
-            return null;
+            return mEl.components["animal-handler"]
+              ? mEl.components["animal-handler"]
+              : null;
           })
-          .filter((handler) => handler !== null); // Filter out any nulls if component not ready
-
-        if (this.markerHandlers.length === 0) {
-          console.warn(
-            "Scene Controller: No markers with 'animal-handler' component found after scene load."
-          );
-        } else {
-          console.log(
-            "Scene Controller: Found marker handlers:",
-            this.markerHandlers.map((h) => h.data.animalName)
-          );
-        }
+          .filter((handler) => handler !== null);
+        console.log(
+          "Scene Controller: Found marker handlers:",
+          this.markerHandlers.map((h) => h.data.animalName)
+        );
       });
 
-      // Setup click listener for the audio icon
       this.uiAudioControl.addEventListener("click", () => {
         if (this.currentlyActiveAudioId) {
           const audioEl = document.getElementById(this.currentlyActiveAudioId);
           if (audioEl) {
-            console.log(
-              `Audio icon clicked for ${this.currentlyActiveAnimalName}. Playing sound.`
-            );
-            audioEl.currentTime = 0; // Play from the beginning
+            audioEl.currentTime = 0;
             audioEl
               .play()
               .catch((error) => console.error("Error playing sound:", error));
-          } else {
-            console.error(
-              `Audio element with ID ${this.currentlyActiveAudioId} not found for ${this.currentlyActiveAnimalName}.`
-            );
           }
         }
       });
@@ -96,8 +80,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     tick: function () {
       if (this.markerHandlers.length === 0 && this.el.sceneEl.hasLoaded) {
-        // Attempt to re-populate if empty after scene load (e.g., dynamic markers, though not in this example)
-        // This is a fallback, ideally `loaded` event handles it.
         const markerElements = Array.from(
           this.el.sceneEl.querySelectorAll("a-marker[animal-handler]")
         );
@@ -107,8 +89,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       let visibleAnimalHandler = null;
-
-      // Prioritize the currently active animal if it's still visible
       if (this.currentlyActiveAnimalName) {
         const lastActiveHandler = this.markerHandlers.find(
           (h) => h.data.animalName === this.currentlyActiveAnimalName
@@ -117,25 +97,20 @@ document.addEventListener("DOMContentLoaded", () => {
           visibleAnimalHandler = lastActiveHandler;
         }
       }
-
-      // If the last active is not visible, find any other visible marker
       if (!visibleAnimalHandler) {
         for (const handler of this.markerHandlers) {
           if (handler.isMarkerCurrentlyVisible) {
             visibleAnimalHandler = handler;
-            break; // Found a visible marker, make it active
+            break;
           }
         }
       }
 
       if (visibleAnimalHandler) {
-        // A marker is visible
         const newAnimalName = visibleAnimalHandler.data.animalName;
         const newAudioId = visibleAnimalHandler.data.audioId;
 
         if (this.currentlyActiveAnimalName !== newAnimalName) {
-          // console.log(`UI Switched to: ${newAnimalName}`);
-          // If a different animal becomes active, pause the previously playing sound (if any)
           if (
             currentPlayingAudioElement &&
             this.currentlyActiveAudioId !== newAudioId
@@ -149,16 +124,12 @@ document.addEventListener("DOMContentLoaded", () => {
             this.currentlyActiveAudioId
           );
         }
-
         this.uiSuccessText.textContent = `${this.currentlyActiveAnimalName} Detected.`;
         this.uiScanningIndicator.style.display = "none";
         this.uiSuccessMessage.style.display = "block";
         this.uiAudioControl.style.display = "flex";
       } else {
-        // No markers are visible
         if (this.currentlyActiveAnimalName !== null) {
-          // If an animal *was* active
-          // console.log(`All markers lost. UI resetting. Was: ${this.currentlyActiveAnimalName}`);
           if (currentPlayingAudioElement) {
             currentPlayingAudioElement.pause();
             currentPlayingAudioElement.currentTime = 0;
@@ -173,6 +144,65 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     },
   });
+
+  // --- Flashlight Logic ---
+  async function toggleFlashlight() {
+    if (!videoTrack) {
+      console.warn("Video track not available for flashlight.");
+      // Attempt to get it again if AR started but track wasn't ready
+      const videoEl = document.querySelector("video"); // AR.js might use #arjs-video or just video
+      if (videoEl && videoEl.srcObject) {
+        const stream = videoEl.srcObject;
+        if (stream) {
+          const tracks = stream.getVideoTracks();
+          if (tracks.length > 0) videoTrack = tracks[0];
+        }
+      }
+      if (!videoTrack) return; // Still not found
+    }
+
+    try {
+      const capabilities = videoTrack.getCapabilities();
+      if (!capabilities.torch) {
+        console.warn("Device does not support torch/flashlight control.");
+        flashlightControlButton.style.display = "none"; // Hide button if not supported
+        return;
+      }
+
+      await videoTrack.applyConstraints({
+        advanced: [{ torch: !isFlashlightOn }],
+      });
+      isFlashlightOn = !isFlashlightOn;
+      flashlightControlButton.classList.toggle("active", isFlashlightOn);
+      console.log("Flashlight " + (isFlashlightOn ? "ON" : "OFF"));
+    } catch (err) {
+      console.error("Error toggling flashlight:", err);
+      // If it failed, try to hide button as it might not be usable
+      // flashlightControlButton.style.display = 'none';
+    }
+  }
+
+  function initializeFlashlightButton() {
+    if (flashlightControlButton) {
+      // Check for initial support once videoTrack is available
+      if (
+        videoTrack &&
+        videoTrack.getCapabilities &&
+        videoTrack.getCapabilities().torch
+      ) {
+        flashlightControlButton.style.display = "flex"; // Show button
+        flashlightControlButton.addEventListener("click", toggleFlashlight);
+      } else if (videoTrack) {
+        // videoTrack exists but no torch support
+        console.warn("Flashlight not supported by this device/camera.");
+        flashlightControlButton.style.display = "none";
+      } else {
+        // videoTrack not ready yet, button remains hidden.
+        // The loader logic will try to show it again when track is found.
+        flashlightControlButton.style.display = "none";
+      }
+    }
+  }
 
   // --- Standard Page Logic (Password, Loader) ---
   enterButton.addEventListener("click", () => {
@@ -206,52 +236,76 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        // A-Frame scene loading and AR.js video loading are handled internally by A-Frame.
-        // The `scene-controller`'s `init` and `tick` will start when A-Frame is ready.
-        // We just need to make sure the loader doesn't hide too soon.
         console.log(
           "[PASSCODE_FLOW] AR Scene setup. scene-controller will manage AR UI."
         );
 
-        // Hide loader after a delay, assuming AR will be ready.
-        // A more robust way would be to listen for an event from scene-controller or arjs-video-loaded.
-        const arReadyTimeout = 10000; // Max wait for AR before hiding loader
+        const arReadyTimeout = 15000; // Max wait for AR before hiding loader (increased slightly)
         const checkARReadyInterval = 500;
         let timeWaited = 0;
 
         const arReadyCheck = setInterval(() => {
           timeWaited += checkARReadyInterval;
-          const videoEl = document.querySelector("video"); // AR.js creates a video element
+          // AR.js usually creates a video element. It might have id="arjs-video" or just be the only video.
+          const videoEl =
+            document.querySelector("#arjs-video") ||
+            document.querySelector("video");
+
+          let videoReady = false;
+          if (videoEl && videoEl.srcObject && videoEl.readyState >= 2) {
+            // HAVE_CURRENT_DATA
+            videoReady = true;
+            if (!videoTrack) {
+              // Try to get videoTrack if not already set
+              const stream = videoEl.srcObject;
+              if (stream) {
+                const tracks = stream.getVideoTracks();
+                if (tracks.length > 0) {
+                  videoTrack = tracks[0];
+                  console.log("Video track obtained for flashlight.");
+                  initializeFlashlightButton(); // Attempt to show flashlight button now
+                }
+              }
+            }
+          }
+
           if (
-            (arSceneEl.hasLoaded && videoEl && videoEl.readyState >= 2) ||
+            (arSceneEl.hasLoaded && videoReady) ||
             timeWaited >= arReadyTimeout
           ) {
-            // readyState 2: HAVE_CURRENT_DATA
             clearInterval(arReadyCheck);
             console.log(
-              `%c[SYSTEM_READY] AR system likely ready (hasLoaded: ${
-                arSceneEl.hasLoaded
-              }, videoReady: ${
-                videoEl ? videoEl.readyState : "N/A"
-              }). Hiding loader.`,
+              `%c[SYSTEM_READY] AR system ready (hasLoaded: ${arSceneEl.hasLoaded}, videoReady: ${videoReady}). Hiding loader.`,
               "color: green;"
             );
             loader.classList.add("hidden");
             setTimeout(() => (loader.style.display = "none"), 500);
-            if (timeWaited >= arReadyTimeout) {
+            if (
+              timeWaited >= arReadyTimeout &&
+              !(arSceneEl.hasLoaded && videoReady)
+            ) {
               console.warn(
                 "[LOADER] Loader hidden due to timeout. AR system might not be fully initialized."
               );
+            }
+            // Final attempt to initialize flashlight button if track was found late
+            if (
+              videoTrack &&
+              flashlightControlButton.style.display === "none"
+            ) {
+              initializeFlashlightButton();
             }
           } else {
             console.log(
               `[LOADER] Waiting for AR... (hasLoaded: ${
                 arSceneEl.hasLoaded
-              }, videoReady: ${videoEl ? videoEl.readyState : "N/A"})`
+              }, videoEl: ${!!videoEl}, videoReadyState: ${
+                videoEl ? videoEl.readyState : "N/A"
+              })`
             );
           }
         }, checkARReadyInterval);
-      }, 500); // Delay for landing page transition
+      }, 500);
     } else {
       errorMessage.textContent = "Invalid password. Try again.";
       passcodeInput.style.animation = "shake 0.5s ease";
@@ -275,10 +329,13 @@ document.addEventListener("DOMContentLoaded", () => {
           document.styleSheets[0].cssRules.length
         );
       } catch (e) {
-        // Silently ignore if rule insertion fails (e.g., security policies)
+        /* Silently ignore */
       }
     }
   }
+
+  // Initialize flashlight button (it will be hidden until video track is ready)
+  initializeFlashlightButton(); // Initial call, might hide it if track not ready.
 
   console.log("Initial script setup complete.");
 });

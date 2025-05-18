@@ -7,11 +7,8 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Simple Animal AR</title>
-    <!-- 1. A-Frame Core FIRST -->
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <!-- 2. AR.js for A-Frame IMMEDIATELY AFTER -->
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <!-- 3. Your main CSS -->
     <link rel="stylesheet" href="style.css" />
   </head>
   <body style="margin: 0px; overflow: hidden">
@@ -58,15 +55,21 @@
         <span id="speaker-icon">🔊</span>
       </div>
 
+      <!-- Flashlight Toggle Button -->
+      <div id="flashlight-control" style="display: none">
+        <span id="flashlight-icon">🔦</span>
+        <!-- Emoji for flashlight -->
+      </div>
+
       <a-scene
         id="ar-scene"
         embedded
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3; sourceWidth: 640; sourceHeight: 480; displayWidth: 640; displayHeight: 480;"
         style="width: 100%; height: 100vh"
         vr-mode-ui="enabled: false"
       >
-        <a-assets>
-          <!-- Ensure these audio files exist in assets/audio/ -->
+        <a-assets timeout="10000">
+          <!-- Increased timeout just in case assets are slow, default is 3000ms -->
           <audio
             id="audio-deer"
             src="assets/audio/deer.mp3"
@@ -94,7 +97,9 @@
           ></audio>
         </a-assets>
 
-        <!-- Deer Marker -->
+        {/*
+        <!-- Markers and Models remain the same as your previous working version -->
+        */}
         <a-marker
           id="marker-deer"
           type="pattern"
@@ -108,11 +113,8 @@
             position="0 0.5 0"
             rotation="0 0 0"
             animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear"
-          >
-          </a-entity>
+          ></a-entity>
         </a-marker>
-
-        <!-- Lion Marker -->
         <a-marker
           id="marker-lion"
           type="pattern"
@@ -127,11 +129,8 @@
             rotation="0 0 0"
             animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
             animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
-          >
-          </a-entity>
+          ></a-entity>
         </a-marker>
-
-        <!-- Pig Marker -->
         <a-marker
           id="marker-pig"
           type="pattern"
@@ -146,11 +145,8 @@
             rotation="0 0 0"
             animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
             animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
-          >
-          </a-entity>
+          ></a-entity>
         </a-marker>
-
-        <!-- Panda Marker -->
         <a-marker
           id="marker-panda"
           type="pattern"
@@ -165,11 +161,8 @@
             rotation="0 0 0"
             animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
             animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
-          >
-          </a-entity>
+          ></a-entity>
         </a-marker>
-
-        <!-- Horse marker -->
         <a-marker
           id="marker-horse"
           type="pattern"
@@ -184,15 +177,13 @@
             rotation="0 0 0"
             animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
             animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
-          >
-          </a-entity>
+          ></a-entity>
         </a-marker>
 
         <a-entity camera></a-entity>
         <a-entity id="scene-controller" scene-controller></a-entity>
       </a-scene>
     </div>
-
     <script src="script.js"></script>
   </body>
 </html>
