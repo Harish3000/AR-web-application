@@ -54,17 +54,52 @@
         </div>
       </div>
 
+      <div id="audio-control" style="display: none">
+        <span id="speaker-icon">🔊</span>
+      </div>
+
       <a-scene
         id="ar-scene"
         embedded
         arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
         style="width: 100%; height: 100vh"
+        vr-mode-ui="enabled: false"
       >
+        <a-assets>
+          <!-- Ensure these audio files exist in assets/audio/ -->
+          <audio
+            id="audio-deer"
+            src="assets/audio/deer.mp3"
+            preload="auto"
+          ></audio>
+          <audio
+            id="audio-lion"
+            src="assets/audio/lion.mp3"
+            preload="auto"
+          ></audio>
+          <audio
+            id="audio-pig"
+            src="assets/audio/pig.mp3"
+            preload="auto"
+          ></audio>
+          <audio
+            id="audio-panda"
+            src="assets/audio/panda.mp3"
+            preload="auto"
+          ></audio>
+          <audio
+            id="audio-horse"
+            src="assets/audio/horse.mp3"
+            preload="auto"
+          ></audio>
+        </a-assets>
+
         <!-- Deer Marker -->
         <a-marker
           id="marker-deer"
           type="pattern"
           url="markers/marker_deer.patt"
+          animal-handler="animalName: Deer; audioId: audio-deer"
         >
           <a-entity
             id="model-deer"
@@ -82,6 +117,7 @@
           id="marker-lion"
           type="pattern"
           url="markers/marker_lion.patt"
+          animal-handler="animalName: Lion; audioId: audio-lion"
         >
           <a-entity
             id="model-lion"
@@ -89,7 +125,6 @@
             scale="1.2 1.2 1.2"
             position="0 0.2 0"
             rotation="0 0 0"
-            visible="true"
             animation__pos="property: position; to: 0 0.3 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine"
             animation__rot="property: rotation; to: 0 360 0; loop: true; dur: 15000; easing: linear"
           >
@@ -97,7 +132,12 @@
         </a-marker>
 
         <!-- Pig Marker -->
-        <a-marker id="marker-pig" type="pattern" url="markers/marker_pig.patt">
+        <a-marker
+          id="marker-pig"
+          type="pattern"
+          url="markers/marker_pig.patt"
+          animal-handler="animalName: Pig; audioId: audio-pig"
+        >
           <a-entity
             id="model-pig"
             gltf-model="url(assets/real_pig.glb)"
@@ -115,6 +155,7 @@
           id="marker-panda"
           type="pattern"
           url="markers/marker_panda.patt"
+          animal-handler="animalName: Panda; audioId: audio-panda"
         >
           <a-entity
             id="model-panda"
@@ -133,6 +174,7 @@
           id="marker-horse"
           type="pattern"
           url="markers/marker_horse.patt"
+          animal-handler="animalName: Horse; audioId: audio-horse"
         >
           <a-entity
             id="model-horse"
@@ -147,6 +189,7 @@
         </a-marker>
 
         <a-entity camera></a-entity>
+        <a-entity id="scene-controller" scene-controller></a-entity>
       </a-scene>
     </div>
 
